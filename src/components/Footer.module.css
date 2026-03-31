@@ -1,0 +1,41 @@
+.footer {
+  padding: 2rem 3rem;
+  background: #2d1a22;
+  border-top: 1px solid rgba(245, 232, 235, 0.1);
+}
+
+.inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.copy {
+  font-size: 0.8rem;
+  color: rgba(245, 232, 235, 0.4);
+}
+
+.top {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 232, 235, 0.55);
+  transition: color 0.3s ease;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.top:hover {
+  color: #f5e8eb;
+}
+
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}

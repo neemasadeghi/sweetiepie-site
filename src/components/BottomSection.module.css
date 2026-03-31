@@ -1,0 +1,161 @@
+.section {
+  padding: 6rem 3rem;
+  background: #2d1a22;
+  color: #f5e8eb;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4rem;
+}
+
+.imageWrap {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3 / 4;
+  width: 280px;
+  flex-shrink: 0;
+}
+
+.imageWrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(245, 232, 235, 0.12);
+  pointer-events: none;
+}
+
+.portrait {
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.imageWrap:hover .portrait {
+  transform: scale(1.03);
+}
+
+.textCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.heading {
+  font-family: var(--font-body);
+  font-size: clamp(1.25rem, 2vw, 1.75rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  line-height: 1.2;
+  margin-bottom: 1rem;
+  color: #f5e8eb;
+}
+
+.bio {
+  color: rgba(245, 232, 235, 0.6);
+  font-size: 1rem;
+  line-height: 1.75;
+  max-width: 520px;
+  margin-bottom: 3rem;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.detailLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  transition: color 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+a.detailLink:hover {
+  color: #f5e8eb;
+}
+
+.detailLabel {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245, 232, 235, 0.45);
+}
+
+.detailValue {
+  font-size: 1rem;
+  font-weight: 400;
+  color: rgba(245, 232, 235, 0.85);
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2.5rem;
+}
+
+.socialLink {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(245, 232, 235, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.3s ease, background 0.3s ease, color 0.3s ease;
+  text-decoration: none;
+  color: rgba(245, 232, 235, 0.7);
+}
+
+.socialLink svg {
+  width: 18px;
+  height: 18px;
+}
+
+.socialLink:hover {
+  border-color: #f5e8eb;
+  background: #f5e8eb;
+  color: #2d1a22;
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 2.5rem 1.5rem;
+    min-height: 100dvh;
+    box-sizing: border-box;
+  }
+
+  .inner {
+    flex-direction: column;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .imageWrap {
+    width: 160px;
+  }
+
+  .textCol {
+    align-items: center;
+  }
+
+  .details {
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .socials {
+    justify-content: center;
+    margin-top: 1.5rem;
+  }
+}

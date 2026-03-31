@@ -1,0 +1,70 @@
+.work {
+  padding: 7.5rem 3rem 6rem;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.filters {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.filterBtn {
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.25rem;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  background: none;
+  cursor: pointer;
+}
+
+.filterBtn:hover {
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+}
+
+.filterActive {
+  color: var(--bg-primary) !important;
+  background: var(--text-primary);
+  border-color: var(--text-primary);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .work {
+    padding: 6rem 1.5rem 4rem;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+  }
+
+  .filterBtn {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.6rem;
+    letter-spacing: 0.03em;
+  }
+}

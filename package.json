@@ -1,0 +1,30 @@
+{
+  "name": "new-portfolio-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@sanity/image-url": "latest",
+    "@sanity/orderable-document-list": "^1.5.1",
+    "framer-motion": "^12.38.0",
+    "next": "latest",
+    "next-sanity": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "sanity": "latest",
+    "styled-components": "latest"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "postcss": "latest",
+    "tailwindcss": "latest",
+    "typescript": "latest"
+  }
+}
