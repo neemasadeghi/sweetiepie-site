@@ -1,26 +1,48 @@
 @import "tailwindcss";
 
 /* ============================================
-   PORTFOLIO — Light Pink Editorial
+   PORTFOLIO — Pink / sweetiepie-style
    ============================================ */
 
 :root {
-  --bg-primary: #fff5f7;
-  --bg-secondary: #fce8ec;
-  --bg-card: #f2dce1;
-  --text-primary: #2d1a22;
-  --text-secondary: #7a5a64;
-  --text-muted: #b89aa3;
-  --accent: #2d1a22;
-  --accent-hover: #5a3a46;
-  --border: rgba(45, 26, 34, 0.1);
-  --border-hover: rgba(45, 26, 34, 0.25);
+  --bg-primary: #ffd8ef;
+  --bg-secondary: #f5c8e3;
+  --bg-card: #edb8d6;
+  --text-primary: #000000;
+  --text-secondary: #4a4a4a;
+  --text-muted: #888888;
+  --accent: #000000;
+  --accent-hover: #333333;
+  --border: rgba(0, 0, 0, 0.1);
+  --border-hover: rgba(0, 0, 0, 0.25);
 
   --font-display: "DM Serif Display", "Georgia", serif;
   --font-body: "DM Sans", "Helvetica Neue", sans-serif;
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --page-padding: 3vw;
+  --max-width: 1800px;
+
+  /* Clears fixed header — match compact Navbar.module padding + logo line */
+  --header-offset: calc(2.35vw + 1.2rem);
+}
+
+@media (max-width: 768px) {
+  :root {
+    --header-offset: calc(6.5vw + 1.15rem);
+  }
+}
+
+.site-main {
+  padding-top: var(--header-offset);
+  min-height: 100dvh;
+  transition: padding-top 0.58s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html[data-header-retracted="true"] .site-main {
+  padding-top: 0;
 }
 
 *,
@@ -34,7 +56,7 @@
 html {
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: var(--text-muted) transparent;
+  scrollbar-color: #d4a0be transparent;
 }
 
 body {
@@ -67,19 +89,6 @@ button {
 }
 
 ::selection {
-  background: #d4a0ad;
-  color: #2d1a22;
-}
-
-/* ---- Scroll Reveal ---- */
-
-.reveal {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
-}
-
-.reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+  background: #000000;
+  color: #ffd8ef;
 }

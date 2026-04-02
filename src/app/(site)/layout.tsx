@@ -1,15 +1,21 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { WorkArea } from "@/components/WorkArea";
+import { getProjects } from "@/lib/sanity-queries";
 
-export default function SiteLayout({
+export default async function SiteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const projects = await getProjects();
+
   return (
     <>
       <Navbar />
-      <main style={{ backgroundColor: "var(--bg-primary)" }}>{children}</main>
+      <main className="site-main">
+        <WorkArea projects={projects}>{children}</WorkArea>
+      </main>
       <Footer />
     </>
   );

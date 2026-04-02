@@ -51,7 +51,7 @@ export const project = defineType({
           { title: "Selected", value: "selected" },
           { title: "Music Video", value: "music-video" },
           { title: "Commercial", value: "commercial" },
-          { title: "Narrative", value: "narrative" },
+          { title: "Documentary", value: "narrative" },
         ],
       },
       validation: (Rule) => Rule.required().min(1),
@@ -143,6 +143,13 @@ export const project = defineType({
       name: "director",
       title: "Director",
       type: "string",
+      description: "Defaults to sweetiepie if left empty",
+    }),
+    defineField({
+      name: "cinematographer",
+      title: "Cinematographer",
+      type: "string",
+      description: "Defaults to Neema Sadeghi if left empty",
     }),
     defineField({
       name: "production",

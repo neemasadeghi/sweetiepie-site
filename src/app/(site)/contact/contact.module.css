@@ -1,21 +1,23 @@
 .contact {
-  padding: 8rem 3rem 6rem;
+  padding: 2.5rem var(--page-padding) 6rem;
 }
 
 .inner {
-  max-width: 1600px;
+  max-width: var(--max-width);
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 6rem;
 }
 
+.text {}
+
 .label {
   font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   display: block;
   margin-bottom: 1.5rem;
 }
@@ -106,6 +108,6 @@ a.detailLink:hover {
 
 @media (max-width: 768px) {
   .contact {
-    padding: 6rem 1.5rem 4rem;
+    padding: 7rem 1.5rem 4rem;
   }
 }

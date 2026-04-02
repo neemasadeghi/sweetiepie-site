@@ -1,9 +1,9 @@
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "sweetiepie",
+  title: "Documentary — sweetiepie",
 };
 
-export default function HomePage() {
+export default function DocumentaryPage() {
   return null;
 }

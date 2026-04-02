@@ -1,13 +1,19 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import styles from "./Footer.module.css";
 
 export function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+
   return (
-    <footer className={styles.footer}>
+    <footer
+      className={`${styles.footer} ${isHome ? styles.footerHome : ""}`}
+    >
       <div className={styles.inner}>
         <span className={styles.copy}>
-          &copy; {new Date().getFullYear()} Neema Sadeghi. All rights reserved.
+          &copy; {new Date().getFullYear()} sweetiepie
         </span>
         <button
           className={styles.top}

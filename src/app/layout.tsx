@@ -17,10 +17,22 @@ const dmSerif = DM_Serif_Display({
   display: "swap",
 });
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "https://www.sweetiepie.film");
+
 export const metadata: Metadata = {
-  title: "Neema Sadeghi — Portfolio",
-  description:
-    "Portfolio of selected works by Neema Sadeghi.",
+  metadataBase: new URL(siteUrl),
+  title: "sweetiepie",
+  description: "sweetiepie — Director",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteUrl,
+    siteName: "sweetiepie",
+  },
 };
 
 export default function RootLayout({

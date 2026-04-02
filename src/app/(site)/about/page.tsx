@@ -3,7 +3,7 @@ import { getAbout } from "@/lib/sanity-queries";
 import styles from "./about.module.css";
 
 export const metadata = {
-  title: "About — Neema Sadeghi",
+  title: "About — sweetiepie",
 };
 
 export default async function AboutPage() {

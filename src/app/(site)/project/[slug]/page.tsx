@@ -53,7 +53,7 @@ export default async function ProjectPage({
   return (
     <section className={styles.page}>
       <div className={styles.top}>
-        <Link href="/#work" className={styles.back}>
+        <Link href="/" className={styles.back}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
@@ -77,16 +77,18 @@ export default async function ProjectPage({
               <span className={styles.metaValue}>{project.director}</span>
             </div>
           )}
+          {project.cinematographer && (
+            <div className={styles.metaItem}>
+              <span className={styles.metaLabel}>Cinematographer</span>
+              <span className={styles.metaValue}>{project.cinematographer}</span>
+            </div>
+          )}
           {project.production && (
             <div className={styles.metaItem}>
               <span className={styles.metaLabel}>Production</span>
               <span className={styles.metaValue}>{project.production}</span>
             </div>
           )}
-          <div className={styles.metaItem}>
-            <span className={styles.metaLabel}>DP</span>
-            <span className={styles.metaValue}>Neema Sadeghi</span>
-          </div>
           {project.imdbUrl && (
             <a href={project.imdbUrl} target="_blank" rel="noopener noreferrer" className={styles.imdbLink} aria-label="IMDb">
               <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M2 4v16h3.5V4H2zm4.5 0v16h3l.3-4.3.4-3.3.3 3.3.3 4.3h3V4h-3l-.5 7.5L9.8 4H6.5zM14 4v16h3.5v-5.7l.8 0c1.3 0 2.3-.4 3-1.1.7-.8 1-1.8 1-3.1V9.2c0-1.5-.3-2.7-1-3.5-.7-.8-1.7-1.3-3-1.5L14 4zm3.5 3h.3c.4 0 .6.1.8.4.2.3.3.7.3 1.3v2.1c0 .6-.1 1-.3 1.2-.2.3-.5.4-.8.4h-.3V7z"/></svg>

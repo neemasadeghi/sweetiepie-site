@@ -3,7 +3,7 @@ import { ContactForm } from "@/components/ContactForm";
 import styles from "./contact.module.css";
 
 export const metadata = {
-  title: "Contact — Neema Sadeghi",
+  title: "Contact — sweetiepie",
 };
 
 export default async function ContactPage() {

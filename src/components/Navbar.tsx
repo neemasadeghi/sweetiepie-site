@@ -1,48 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { WORK_NAV } from "@/lib/work-nav";
 import styles from "./Navbar.module.css";
 
 export function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [dark, setDark] = useState(false);
-  const [clipPercent, setClipPercent] = useState(0);
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [retracted, setRetracted] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 80);
-      const contact = document.getElementById("about");
-      if (contact) {
-        const rect = contact.getBoundingClientRect();
-        const headerH = 70;
-        if (rect.top <= headerH) {
-          const pct = Math.min(100, ((headerH - rect.top) / headerH) * 100);
-          setClipPercent(pct);
-          if (!dark) setDark(true);
-        } else {
-          setClipPercent(0);
-          if (dark) setDark(false);
-        }
-      }
+    if (retracted) {
+      document.documentElement.setAttribute("data-header-retracted", "true");
+    } else {
+      document.documentElement.removeAttribute("data-header-retracted");
+    }
+  }, [retracted]);
+
+  useEffect(
+    () => () => {
+      document.documentElement.removeAttribute("data-header-retracted");
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (menuOpen) {
+      setRetracted(false);
+      return;
+    }
+
+    const sync = () => {
+      const y = window.scrollY;
+      setRetracted(y > 0.5);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
-  const scrollTo = (id: string, path: string) => {
-    setMenuOpen(false);
-    document.body.style.overflow = "";
-    window.history.pushState(null, "", path);
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const closeMenu = () => {
-    setMenuOpen(false);
-    document.body.style.overflow = "";
-  };
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => window.removeEventListener("scroll", sync);
+  }, [menuOpen]);
 
   const toggleMenu = () => {
     const next = !menuOpen;
@@ -50,68 +48,76 @@ export function Navbar() {
     document.body.style.overflow = next ? "hidden" : "";
   };
 
+  const closeMenu = () => {
+    setMenuOpen(false);
+    document.body.style.overflow = "";
+  };
+
+  const linkClass = (href: string) =>
+    `${styles.link} ${pathname === href ? styles.linkActive : ""}`;
+
   return (
-    <div className={styles.headerWrap}>
-      <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
-        <nav className={styles.nav}>
-          <button
-            className={styles.logoWrap}
-            onClick={() => {
-              window.history.pushState(null, "", "/");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          >
-            <span className={styles.logo}>Neema Sadeghi</span>
-            <span className={styles.role}>Director of Photography</span>
-          </button>
-          <button
-            className={`${styles.toggle} ${menuOpen ? styles.toggleActive : ""}`}
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-          >
-            <span />
-            <span />
-          </button>
-          <ul className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
-            <li><button className={styles.link} onClick={() => scrollTo("work", "/")}>Work</button></li>
-            <li><button className={styles.link} onClick={() => scrollTo("contact", "/contact")}>Contact</button></li>
-          </ul>
-        </nav>
-      </header>
-      {dark && (
-        <header
-          className={`${styles.header} ${styles.scrolled} ${styles.dark}`}
-          style={{ clipPath: menuOpen ? "none" : `inset(${100 - clipPercent}% 0 0 0)` }}
-          aria-hidden={!menuOpen}
+    <header
+      className={`${styles.header} ${retracted ? styles.retracted : ""}`}
+    >
+      <nav className={styles.nav}>
+        <Link href="/" className={styles.logo} onClick={closeMenu}>
+          sweetiepie
+        </Link>
+
+        <button
+          className={`${styles.burger} ${menuOpen ? styles.burgerOpen : ""}`}
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+          aria-expanded={menuOpen}
         >
-          <nav className={styles.nav}>
-            <button
-              className={styles.logoWrap}
-              onClick={() => {
-                window.history.pushState(null, "", "/");
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
+          <span />
+          <span />
+        </button>
+
+        <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
+          {WORK_NAV.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={linkClass(href)}
+              onClick={closeMenu}
             >
-              <span className={styles.logo}>Neema Sadeghi</span>
-              <span className={styles.role}>Director of Photography</span>
-            </button>
-            <button
-              className={`${styles.toggle} ${menuOpen ? styles.toggleActive : ""}`}
-              onClick={toggleMenu}
-              aria-label="Toggle menu"
-              tabIndex={-1}
+              {label}
+            </Link>
+          ))}
+          <Link href="/about" className={linkClass("/about")} onClick={closeMenu}>
+            About
+          </Link>
+          <a
+            href="https://instagram.com/sweetiepie.dir"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.socialLink}
+            aria-label="Instagram"
+            onClick={closeMenu}
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <span />
-              <span />
-            </button>
-            <ul className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
-              <li><button className={styles.link} onClick={() => scrollTo("work", "/")}>Work</button></li>
-              <li><button className={styles.link} onClick={() => scrollTo("contact", "/contact")}>Contact</button></li>
-            </ul>
-          </nav>
-        </header>
-      )}
-    </div>
+              <rect x="2" y="2" width="20" height="20" rx="5" />
+              <circle cx="12" cy="12" r="5" />
+              <circle
+                cx="17.5"
+                cy="6.5"
+                r="1"
+                fill="currentColor"
+                stroke="none"
+              />
+            </svg>
+          </a>
+        </div>
+      </nav>
+    </header>
   );
 }

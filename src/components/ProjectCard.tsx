@@ -20,6 +20,7 @@ export interface Project {
   additionalVideos?: { title?: string; url: string }[];
   gallery?: { imageUrl: string; caption?: string; link?: string }[];
   director?: string;
+  cinematographer?: string;
   production?: string;
   imdbUrl?: string;
   watchPlatform?: string;
@@ -38,7 +39,13 @@ function useIsMobile() {
   return mobile;
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({
+  project,
+  showDirector = true,
+}: {
+  project: Project;
+  showDirector?: boolean;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -107,7 +114,7 @@ export function ProjectCard({ project }: { project: Project }) {
             src={project.stillUrl}
             alt={project.client}
             fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 600px"
+            sizes="(max-width: 768px) 100vw, 50vw"
             unoptimized
             className={`${styles.still} ${playing ? styles.stillHidden : ""}`}
             style={project.hotspot ? {
@@ -132,11 +139,11 @@ export function ProjectCard({ project }: { project: Project }) {
             <h3 className={styles.client}>{project.client}</h3>
             {(project.subtitle || project.format) && (
               <span className={styles.subtitle}>
-                {[project.subtitle, project.format].filter(Boolean).join(" · ")}
+                {[project.subtitle, project.format].filter(Boolean).join(" / ")}
               </span>
             )}
           </div>
-          {project.director && (
+          {showDirector && project.director && (
             <span className={styles.director}>dir. {project.director}</span>
           )}
         </div>

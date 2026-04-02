@@ -3,10 +3,23 @@ import { urlFor } from "@/sanity/image";
 import { placeholderProjects } from "./placeholder-data";
 import type { Project } from "@/components/ProjectCard";
 
+const DEFAULT_DIRECTOR = "sweetiepie";
+const DEFAULT_CINEMATOGRAPHER = "Neema Sadeghi";
+
+function withDirectorDefault(value: string | undefined | null) {
+  const t = value?.trim();
+  return t || DEFAULT_DIRECTOR;
+}
+
+function withCinematographerDefault(value: string | undefined | null) {
+  const t = value?.trim();
+  return t || DEFAULT_CINEMATOGRAPHER;
+}
+
 const isSanityConfigured = !!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
 
 export async function getProjects(): Promise<Project[] | null> {
-  if (!isSanityConfigured || !client) return null;
+  if (!isSanityConfigured || !client) return placeholderProjects;
 
   let raw;
   try {
@@ -22,14 +35,15 @@ export async function getProjects(): Promise<Project[] | null> {
         "videoUrl": previewVideo.asset->url,
         vimeoUrl,
         director,
+        cinematographer,
         production
       }`
     );
   } catch {
-    return null;
+    return placeholderProjects;
   }
 
-  if (!raw || raw.length === 0) return null;
+  if (!raw || raw.length === 0) return placeholderProjects;
 
   return raw.map((p: any) => ({
     _id: p._id,
@@ -42,7 +56,8 @@ export async function getProjects(): Promise<Project[] | null> {
     hotspot: p.still?.hotspot ? { x: p.still.hotspot.x, y: p.still.hotspot.y } : undefined,
     videoUrl: p.videoUrl || "",
     vimeoUrl: p.vimeoUrl || "",
-    director: p.director,
+    director: withDirectorDefault(p.director),
+    cinematographer: withCinematographerDefault(p.cinematographer),
     production: p.production,
   }));
 }
@@ -69,6 +84,7 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
         additionalVideos[] { title, url },
         gallery[] { image, caption, link },
         director,
+        cinematographer,
         production,
         imdbUrl,
         watchPlatform,
@@ -100,7 +116,8 @@ export async function getProjectBySlug(slug: string): Promise<Project | null> {
       caption: g.caption || "",
       link: g.link || "",
     })),
-    director: raw.director,
+    director: withDirectorDefault(raw.director),
+    cinematographer: withCinematographerDefault(raw.cinematographer),
     production: raw.production,
     imdbUrl: raw.imdbUrl || "",
     watchPlatform: raw.watchPlatform || "",
