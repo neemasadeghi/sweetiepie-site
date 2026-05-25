@@ -1,15 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WORK_NAV } from "@/lib/work-nav";
 import styles from "./Navbar.module.css";
 
+const MOBILE_NAV_MQ = "(max-width: 768px)";
+
+function subscribeMobileNav(cb: () => void) {
+  const mq = window.matchMedia(MOBILE_NAV_MQ);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+
+function getMobileNavSnapshot() {
+  return window.matchMedia(MOBILE_NAV_MQ).matches;
+}
+
 export function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [retracted, setRetracted] = useState(false);
+  const isMobileNav = useSyncExternalStore(
+    subscribeMobileNav,
+    getMobileNavSnapshot,
+    () => false
+  );
 
   useEffect(() => {
     if (retracted) {
@@ -34,13 +51,15 @@ export function Navbar() {
 
     const sync = () => {
       const y = window.scrollY;
-      setRetracted(y > 0.5);
+      // Hiding the bar on scroll also disables the burger (pointer-events: none). Keep the header
+      // visible on small screens so the menu is always reachable.
+      setRetracted(y > 0.5 && !isMobileNav);
     };
 
     sync();
     window.addEventListener("scroll", sync, { passive: true });
     return () => window.removeEventListener("scroll", sync);
-  }, [menuOpen]);
+  }, [menuOpen, isMobileNav]);
 
   const toggleMenu = () => {
     const next = !menuOpen;
@@ -86,9 +105,6 @@ export function Navbar() {
               {label}
             </Link>
           ))}
-          <Link href="/about" className={linkClass("/about")} onClick={closeMenu}>
-            About
-          </Link>
           <a
             href="https://instagram.com/sweetiepie.dir"
             target="_blank"

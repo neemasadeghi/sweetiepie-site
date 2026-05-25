@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "next dev",
     "dev:paired": "next dev -p 3001",
-    "build": "next build",
+    "sanity:manifest": "NODE_ENV=production sanity manifest extract --path public/studio/static",
+    "sanity:schema-deploy": "NODE_ENV=production sanity schema deploy",
+    "build": "NODE_ENV=production sanity manifest extract --path public/studio/static && next build",
     "start": "next start",
     "lint": "next lint"
   },

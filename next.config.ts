@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
         destination: "https://www.sweetiepie.film/:path*",
         permanent: true,
       },
+      { source: "/about", destination: "/", permanent: false },
       { source: "/studio", destination: "/studio/sweetiepie", permanent: false },
       { source: "/narrative", destination: "/documentary", permanent: true },
     ];

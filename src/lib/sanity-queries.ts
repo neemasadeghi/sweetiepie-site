@@ -1,5 +1,6 @@
 import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
+import { resolvePublicSanityProjectId } from "@/lib/sanity-public-project";
 import { placeholderProjects } from "./placeholder-data";
 import type { Project } from "@/components/ProjectCard";
 
@@ -16,7 +17,7 @@ function withCinematographerDefault(value: string | undefined | null) {
   return t || DEFAULT_CINEMATOGRAPHER;
 }
 
-const isSanityConfigured = !!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const isSanityConfigured = !!resolvePublicSanityProjectId();
 
 export async function getProjects(): Promise<Project[] | null> {
   if (!isSanityConfigured || !client) return placeholderProjects;

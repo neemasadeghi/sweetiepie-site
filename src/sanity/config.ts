@@ -1,4 +1,6 @@
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!;
+import { resolvePublicSanityProjectId } from "@/lib/sanity-public-project";
+
+const projectId = resolvePublicSanityProjectId();
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || "production";
 const apiVersion = "2024-01-01";
 
