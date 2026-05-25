@@ -64,11 +64,19 @@ export const project = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: "previewMux",
+      title: "Preview video (Mux)",
+      type: "mux.video",
+      description:
+        "Recommended: short looping clip via Mux. Configure the Mux token in Studio (Videos / plugin setup) the first time you upload.",
+    }),
+    defineField({
       name: "previewVideo",
-      title: "Preview Video",
+      title: "Preview video (legacy file)",
       type: "file",
       options: { accept: "video/mp4,video/webm" },
-      description: "Upload a short looping clip (5–15 seconds, MP4 or WebM)",
+      description:
+        "Optional fallback: MP4/WebM hosted on Sanity. Prefer “Preview video (Mux)” for new work.",
     }),
     defineField({
       name: "vimeoTitle",

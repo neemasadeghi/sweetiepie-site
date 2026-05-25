@@ -3,6 +3,8 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import MuxPlayer from "@mux/mux-player-react";
+import type MuxPlayerElement from "@mux/mux-player";
 import styles from "./ProjectCard.module.css";
 
 export interface Project {
@@ -14,6 +16,9 @@ export interface Project {
   category: string[];
   stillUrl: string;
   hotspot?: { x: number; y: number };
+  /** Mux looping preview (preferred) */
+  muxPlaybackId?: string;
+  /** Legacy Sanity file URL when no Mux preview */
   videoUrl?: string;
   vimeoTitle?: string;
   vimeoUrl?: string;
@@ -46,27 +51,44 @@ export function ProjectCard({
   project: Project;
   showDirector?: boolean;
 }) {
+  const muxRef = useRef<MuxPlayerElement | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const isMobile = useIsMobile();
 
+  const muxId = project.muxPlaybackId?.trim() || "";
+  const fileUrl = project.videoUrl?.trim() || "";
+  const hasPreview = Boolean(muxId || fileUrl);
+
   const play = useCallback(() => {
+    const mux = muxRef.current;
     const video = videoRef.current;
-    if (!video || !project.videoUrl) return;
-    video.play().then(() => setPlaying(true)).catch(() => {});
-  }, [project.videoUrl]);
+    if (muxId && mux) {
+      mux.play().then(() => setPlaying(true)).catch(() => {});
+      return;
+    }
+    if (fileUrl && video) {
+      video.play().then(() => setPlaying(true)).catch(() => {});
+    }
+  }, [muxId, fileUrl]);
 
   const pause = useCallback(() => {
+    const mux = muxRef.current;
     const video = videoRef.current;
-    if (!video) return;
-    video.pause();
-    video.currentTime = 0;
+    if (mux) {
+      mux.pause();
+      mux.currentTime = 0;
+    }
+    if (video) {
+      video.pause();
+      video.currentTime = 0;
+    }
     setPlaying(false);
   }, []);
 
   useEffect(() => {
-    if (!isMobile || !project.videoUrl || !cardRef.current) return;
+    if (!isMobile || !hasPreview || !cardRef.current) return;
 
     let delayTimer: ReturnType<typeof setTimeout> | null = null;
     const card = cardRef.current;
@@ -99,7 +121,7 @@ export function ProjectCard({
       playObserver.disconnect();
       stopObserver.disconnect();
     };
-  }, [isMobile, project.videoUrl, play, pause]);
+  }, [isMobile, hasPreview, play, pause]);
 
   return (
     <div
@@ -121,17 +143,31 @@ export function ProjectCard({
               objectPosition: `${project.hotspot.x * 100}% ${project.hotspot.y * 100}%`,
             } : undefined}
           />
-          {project.videoUrl && (
+          {muxId ? (
+            <MuxPlayer
+              ref={muxRef}
+              playbackId={muxId}
+              streamType="on-demand"
+              muted
+              loop
+              playsInline
+              preload="none"
+              nohotkeys
+              proudlyDisplayMuxBadge={false}
+              videoTitle={project.client}
+              className={`${styles.video} ${styles.muxPlayer} ${playing ? styles.videoPlaying : ""}`}
+            />
+          ) : fileUrl ? (
             <video
               ref={videoRef}
               className={`${styles.video} ${playing ? styles.videoPlaying : ""}`}
-              src={project.videoUrl}
+              src={fileUrl}
               muted
               loop
               playsInline
               preload="none"
             />
-          )}
+          ) : null}
           <div className={`${styles.overlay} ${playing ? styles.overlayHidden : ""}`} />
         </div>
         <div className={styles.info}>

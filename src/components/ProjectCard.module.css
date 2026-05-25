@@ -36,6 +36,13 @@
   object-fit: cover;
   opacity: 0;
   transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+/* Mux web component — hide chrome, match card crop */
+.muxPlayer {
+  --controls: none;
+  --media-object-fit: cover;
 }
 
 .videoPlaying {

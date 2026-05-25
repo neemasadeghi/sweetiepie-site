@@ -1,5 +1,5 @@
 {
-  "name": "new-portfolio-site",
+  "name": "sweetiepie-site",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -12,6 +12,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@mux/mux-player-react": "^3.13.0",
     "@sanity/image-url": "latest",
     "@sanity/orderable-document-list": "^1.5.1",
     "framer-motion": "^12.38.0",
@@ -20,6 +21,7 @@
     "react": "latest",
     "react-dom": "latest",
     "sanity": "latest",
+    "sanity-plugin-mux-input": "^2.19.0",
     "styled-components": "latest"
   },
   "devDependencies": {

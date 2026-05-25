@@ -1,6 +1,7 @@
 import { defineConfig } from "sanity";
 import { structureTool, type StructureResolver } from "sanity/structure";
 import { orderableDocumentListDeskItem } from "@sanity/orderable-document-list";
+import { muxInput } from "sanity-plugin-mux-input";
 import { SWEETIEPIE_SANITY_PROJECT_ID } from "@/lib/sanity-public-project";
 import { schemaTypes } from "@/sanity/schemas";
 
@@ -53,6 +54,7 @@ const neemaWorkspace = {
     structureTool({
       structure: orderableContentStructure,
     }),
+    muxInput(),
   ],
   schema: {
     types: schemaTypes,
@@ -69,6 +71,7 @@ const sweetiepieWorkspace = {
     structureTool({
       structure: orderableContentStructure,
     }),
+    muxInput(),
   ],
   schema: {
     types: schemaTypes,

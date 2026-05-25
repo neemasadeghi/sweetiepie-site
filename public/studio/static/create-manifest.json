@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-05-25T18:46:25.774Z",
+  "createdAt": "2026-05-25T19:09:24.440Z",
   "studioVersion": "5.18.0",
   "version": 3,
   "workspaces": [
@@ -13,9 +13,9 @@
       },
       "name": "sweetiepie",
       "projectId": "a7vpcuze",
-      "schema": "50f51a6d.create-schema.json",
+      "schema": "f1c2094d.create-schema.json",
       "title": "Sweetiepie",
-      "tools": "a1fd46b5.create-tools.json"
+      "tools": "aac9517d.create-tools.json"
     }
   ]
 }
