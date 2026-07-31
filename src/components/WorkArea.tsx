@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import type { Project } from "./ProjectCard";
 import { ProjectList } from "./ProjectList";
+import { WorkScrollRestore } from "./WorkScrollRestore";
 import {
   isWorkPathname,
   WORK_PATH_TO_CATEGORY,
@@ -64,7 +65,10 @@ export function WorkArea({
     }
     const category = WORK_PATH_TO_CATEGORY[pathname] ?? null;
     return (
-      <ProjectList projects={projects} activeCategory={category} animated />
+      <>
+        <WorkScrollRestore pathname={pathname} />
+        <ProjectList projects={projects} activeCategory={category} animated />
+      </>
     );
   }
 

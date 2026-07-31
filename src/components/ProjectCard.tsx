@@ -3,7 +3,9 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import MuxPlayer from "@mux/mux-player-react";
+import { saveWorkScrollState } from "@/lib/work-scroll";
 import type MuxPlayerElement from "@mux/mux-player";
 import styles from "./ProjectCard.module.css";
 
@@ -56,6 +58,7 @@ export function ProjectCard({
   const cardRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const isMobile = useIsMobile();
+  const pathname = usePathname();
 
   const muxId = project.muxPlaybackId?.trim() || "";
   const fileUrl = project.videoUrl?.trim() || "";
@@ -130,7 +133,12 @@ export function ProjectCard({
       onMouseEnter={isMobile ? undefined : play}
       onMouseLeave={isMobile ? undefined : pause}
     >
-      <Link href={`/project/${project.slug}`} className={styles.link}>
+      <Link
+        href={`/project/${project.slug}`}
+        className={styles.link}
+        scroll={false}
+        onClick={() => saveWorkScrollState(pathname, window.scrollY)}
+      >
         <div className={styles.media}>
           <Image
             src={project.stillUrl}

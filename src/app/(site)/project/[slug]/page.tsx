@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { getProjectBySlug } from "@/lib/sanity-queries";
+import { ProjectBackLink } from "@/components/ProjectBackLink";
 import styles from "./project.module.css";
 
 function parseVimeoUrl(url: string): { id: string; hash?: string } | null {
@@ -53,12 +53,7 @@ export default async function ProjectPage({
   return (
     <section className={styles.page}>
       <div className={styles.top}>
-        <Link href="/" className={styles.back}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-          Back
-        </Link>
+        <ProjectBackLink className={styles.back} />
       </div>
 
       <div className={styles.details}>
