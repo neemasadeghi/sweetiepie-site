@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import type { Project } from "./ProjectCard";
 import { ProjectList } from "./ProjectList";
 import { WorkScrollRestore } from "./WorkScrollRestore";
+import { ProjectScrollToTop } from "./ProjectScrollToTop";
 import {
   isWorkPathname,
   WORK_PATH_TO_CATEGORY,
@@ -72,5 +73,10 @@ export function WorkArea({
     );
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <ProjectScrollToTop />
+      {children}
+    </>
+  );
 }
