@@ -136,7 +136,6 @@ export function ProjectCard({
       <Link
         href={`/project/${project.slug}`}
         className={styles.link}
-        scroll={false}
         onClick={() => saveWorkScrollState(pathname, window.scrollY)}
       >
         <div className={styles.media}>
