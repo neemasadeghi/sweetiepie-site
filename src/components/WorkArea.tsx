@@ -3,8 +3,7 @@
 import { usePathname } from "next/navigation";
 import type { Project } from "./ProjectCard";
 import { ProjectList } from "./ProjectList";
-import { WorkScrollRestore } from "./WorkScrollRestore";
-import { ProjectScrollToTop } from "./ProjectScrollToTop";
+import { SiteScrollManager } from "./SiteScrollManager";
 import {
   isWorkPathname,
   WORK_PATH_TO_CATEGORY,
@@ -60,23 +59,22 @@ export function WorkArea({
 }) {
   const pathname = usePathname();
 
-  if (isWorkPathname(pathname)) {
-    if (!projects) {
-      return <UnderConstruction />;
-    }
-    const category = WORK_PATH_TO_CATEGORY[pathname] ?? null;
-    return (
-      <>
-        <WorkScrollRestore pathname={pathname} />
-        <ProjectList projects={projects} activeCategory={category} animated />
-      </>
-    );
-  }
-
   return (
     <>
-      <ProjectScrollToTop />
-      {children}
+      <SiteScrollManager />
+      {isWorkPathname(pathname) ? (
+        !projects ? (
+          <UnderConstruction />
+        ) : (
+          <ProjectList
+            projects={projects}
+            activeCategory={WORK_PATH_TO_CATEGORY[pathname] ?? null}
+            animated
+          />
+        )
+      ) : (
+        children
+      )}
     </>
   );
 }

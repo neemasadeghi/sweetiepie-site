@@ -1,18 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { getWorkReturnPath } from "@/lib/work-scroll";
 
 export function ProjectBackLink({ className }: { className?: string }) {
-  const [href, setHref] = useState("/");
+  const router = useRouter();
 
-  useEffect(() => {
-    setHref(getWorkReturnPath());
-  }, []);
+  const handleBack = () => {
+    const returnPath = getWorkReturnPath();
+
+    // Same behavior for every project: back to the tab you came from.
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    router.push(returnPath);
+  };
 
   return (
-    <Link href={href} scroll={false} className={className}>
+    <button type="button" className={className} onClick={handleBack}>
       <svg
         width="20"
         height="20"
@@ -22,10 +29,11 @@ export function ProjectBackLink({ className }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden
       >
         <path d="M19 12H5M12 19l-7-7 7-7" />
       </svg>
       Back
-    </Link>
+    </button>
   );
 }

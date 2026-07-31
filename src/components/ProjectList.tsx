@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useLayoutEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import { LayoutGroup, AnimatePresence, motion } from "framer-motion";
 import { ProjectCard, type Project } from "./ProjectCard";
 import { filterProjectsByCategory } from "@/lib/filter-projects";
+import { consumeWorkScrollRestoring } from "@/lib/work-scroll";
 import styles from "./ProjectList.module.css";
 
 type ProjectListProps = {
@@ -36,7 +38,13 @@ export function ProjectList({
   activeCategory,
   animated = false,
 }: ProjectListProps) {
+  const pathname = usePathname();
   const enterY = useEnterFromBelowY();
+  const [skipEnterAnimation, setSkipEnterAnimation] = useState(false);
+
+  useLayoutEffect(() => {
+    setSkipEnterAnimation(consumeWorkScrollRestoring());
+  }, [pathname]);
 
   const visible = useMemo(
     () => filterProjectsByCategory(projects, activeCategory),
@@ -60,7 +68,7 @@ export function ProjectList({
               key={project._id}
               layout="position"
               layoutId={project._id}
-              initial={{ opacity: 0, y: enterY }}
+              initial={skipEnterAnimation ? false : { opacity: 0, y: enterY }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 64 }}
               transition={{
