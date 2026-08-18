@@ -17,6 +17,8 @@ export interface Project {
   slug: string;
   category: string[];
   stillUrl: string;
+  /** 1200×630 crop for Open Graph / iMessage previews */
+  shareImageUrl?: string;
   hotspot?: { x: number; y: number };
   /** Mux looping preview (preferred) */
   muxPlaybackId?: string;

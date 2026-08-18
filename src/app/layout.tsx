@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -17,11 +18,7 @@ const dmSerif = DM_Serif_Display({
   display: "swap",
 });
 
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "https://www.sweetiepie.film");
+const siteUrl = getSiteUrl();
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -30,13 +27,23 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "sweetiepie",
-  description: "sweetiepie — Director",
+  title: {
+    default: "sweetiepie",
+    template: "%s · sweetiepie",
+  },
+  description: "sweetiepie — Director. Music videos, commercials & documentary.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
     siteName: "sweetiepie",
+    title: "sweetiepie",
+    description: "Director — Music videos, commercials & documentary.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "sweetiepie",
+    description: "Director — Music videos, commercials & documentary.",
   },
 };
 

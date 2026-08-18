@@ -1,6 +1,12 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import { getProjectBySlug } from "@/lib/sanity-queries";
 import { ProjectBackLink } from "@/components/ProjectBackLink";
+import { getSiteUrl } from "@/lib/site-url";
+import {
+  getProjectShareDescription,
+  getProjectShareTitle,
+} from "@/lib/share-image";
 import styles from "./project.module.css";
 
 function parseVimeoUrl(url: string): { id: string; hash?: string } | null {
@@ -30,6 +36,37 @@ async function getVimeoEmbed(url: string) {
 }
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const project = await getProjectBySlug(slug);
+  if (!project) return { title: "Not found" };
+
+  const title = getProjectShareTitle(project);
+  const description = getProjectShareDescription(project);
+  const url = `${getSiteUrl()}/project/${slug}`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: "sweetiepie",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
 
 export default async function ProjectPage({
   params,
