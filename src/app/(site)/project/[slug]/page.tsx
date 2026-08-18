@@ -5,6 +5,7 @@ import { ProjectBackLink } from "@/components/ProjectBackLink";
 import { getSiteUrl } from "@/lib/site-url";
 import {
   getProjectShareDescription,
+  getProjectShareImage,
   getProjectShareTitle,
 } from "@/lib/share-image";
 import styles from "./project.module.css";
@@ -49,21 +50,36 @@ export async function generateMetadata({
   const title = getProjectShareTitle(project);
   const description = getProjectShareDescription(project);
   const url = `${getSiteUrl()}/project/${slug}`;
+  const imageUrl = getProjectShareImage(project);
+  const shareImage = imageUrl
+    ? {
+        url: imageUrl,
+        secureUrl: imageUrl,
+        alt: `${project.client} — project still`,
+        width: 1200,
+        height: 630,
+        type: "image/jpeg" as const,
+      }
+    : undefined;
 
   return {
     title,
     description,
+    alternates: { canonical: `/project/${slug}` },
     openGraph: {
       title,
       description,
       url,
       siteName: "sweetiepie",
       type: "website",
+      locale: "en_US",
+      ...(shareImage ? { images: [shareImage] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
   };
 }

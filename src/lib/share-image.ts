@@ -2,15 +2,11 @@ import type { Project } from "@/components/ProjectCard";
 
 type ShareProject = Pick<
   Project,
-  "client" | "subtitle" | "format" | "director" | "cinematographer" | "stillUrl" | "shareImageUrl" | "muxPlaybackId"
+  "client" | "subtitle" | "format" | "director" | "cinematographer" | "stillUrl" | "shareImageUrl"
 >;
 
-/** Frame from the preview video (Mux) or the project still — sized for link previews. */
+/** Curated project still — same source as the grid (like neema.film), not a Mux frame. */
 export function getProjectShareImage(project: ShareProject): string {
-  const muxId = project.muxPlaybackId?.trim();
-  if (muxId) {
-    return `https://image.mux.com/${muxId}/thumbnail.jpg?width=1200&height=630&fit_mode=smartcrop&time=1`;
-  }
   return project.shareImageUrl || project.stillUrl;
 }
 
