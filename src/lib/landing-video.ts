@@ -14,11 +14,11 @@ export const LANDING_VIDEO_FILES = {
   portrait: "/landing/hero-portrait.mp4",
 } as const;
 
-/** Progressive high-quality MP4 — faster start than HLS adaptive for short loops. */
-export function getLandingMp4Url(playbackId: string): string {
+/** HLS manifest for early connection setup. */
+export function getLandingStreamUrl(playbackId: string): string {
   const id = playbackId.trim();
   if (!id) return "";
-  return `https://stream.mux.com/${id}/high.mp4`;
+  return `https://stream.mux.com/${id}.m3u8`;
 }
 
 /** First-frame still from Mux — shown instantly while the stream buffers. */

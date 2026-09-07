@@ -1,5 +1,5 @@
 import type { LandingVideo } from "@/lib/landing-video";
-import { getLandingMp4Url, getLandingPosterUrl } from "@/lib/landing-video";
+import { getLandingPosterUrl, getLandingStreamUrl } from "@/lib/landing-video";
 
 export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
   const landscapeId = landing.landscapePlaybackId.trim();
@@ -11,13 +11,13 @@ export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
     portraitId && portraitId !== landscapeId
       ? getLandingPosterUrl(portraitId, { portrait: true })
       : "";
-  const landscapeMp4 = landscapeId ? getLandingMp4Url(landscapeId) : "";
-  const portraitMp4 =
+  const landscapeStream = landscapeId ? getLandingStreamUrl(landscapeId) : "";
+  const portraitStream =
     portraitId && portraitId !== landscapeId
-      ? getLandingMp4Url(portraitId)
+      ? getLandingStreamUrl(portraitId)
       : "";
 
-  if (!landscapePoster && !portraitPoster && !landscapeMp4 && !portraitMp4) {
+  if (!landscapePoster && !portraitPoster && !landscapeStream && !portraitStream) {
     return null;
   }
 
@@ -44,20 +44,20 @@ export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
           fetchPriority="high"
         />
       ) : null}
-      {landscapeMp4 ? (
+      {landscapeStream ? (
         <link
           rel="preload"
           as="fetch"
-          href={landscapeMp4}
+          href={landscapeStream}
           crossOrigin="anonymous"
           fetchPriority="high"
         />
       ) : null}
-      {portraitMp4 ? (
+      {portraitStream ? (
         <link
           rel="preload"
           as="fetch"
-          href={portraitMp4}
+          href={portraitStream}
           crossOrigin="anonymous"
           media="(orientation: portrait)"
           fetchPriority="high"

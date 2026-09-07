@@ -1,12 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import MuxPlayer, {
+  MaxResolution,
+  MinResolution,
+  RenditionOrder,
+} from "@mux/mux-player-react";
+import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
-import {
-  LANDING_VIDEO_FILES,
-  getLandingMp4Url,
-  getLandingPosterUrl,
-} from "@/lib/landing-video";
+import { LANDING_VIDEO_FILES, getLandingPosterUrl } from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
 
 const PORTRAIT_MQ = "(orientation: portrait)";
@@ -29,7 +31,8 @@ type LandingHeroProps = {
 
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [videoReady, setVideoReady] = useState(false);
+  const muxRef = useRef<MuxPlayerElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const isPortrait = useSyncExternalStore(
     subscribeOrientation,
     getPortraitSnapshot,
@@ -39,29 +42,41 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const muxId = (
     isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
   ).trim();
-  const muxMp4 = muxId ? getLandingMp4Url(muxId) : "";
   const fileSrc = isPortrait
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
-  const videoSrc = muxMp4 || fileSrc;
-  const posterUrl = muxId ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
+  const useMux = Boolean(muxId);
+  const posterUrl = useMux ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
 
   useEffect(() => {
-    setVideoReady(false);
-  }, [videoSrc]);
+    setIsPlaying(false);
+  }, [useMux, muxId, fileSrc]);
 
-  useLayoutEffect(() => {
-    const video = videoRef.current;
-    if (!video || !videoSrc) return;
-    video.load();
-    video.play().catch(() => {});
-  }, [videoSrc]);
+  const tryPlay = useCallback(() => {
+    if (useMux) {
+      muxRef.current?.play().catch(() => {});
+      return;
+    }
+    videoRef.current?.play().catch(() => {});
+  }, [useMux]);
 
-  const markVideoReady = useCallback(() => {
-    setVideoReady(true);
+  useEffect(() => {
+    tryPlay();
+    const retryTimer = window.setInterval(tryPlay, 300);
+    const stopTimer = window.setTimeout(() => {
+      window.clearInterval(retryTimer);
+    }, 6000);
+    return () => {
+      window.clearInterval(retryTimer);
+      window.clearTimeout(stopTimer);
+    };
+  }, [useMux, muxId, fileSrc, tryPlay]);
+
+  const handlePlaying = useCallback(() => {
+    setIsPlaying(true);
   }, []);
 
-  const smoothLoop = useCallback((media: HTMLVideoElement) => {
+  const smoothLoop = useCallback((media: MuxPlayerElement | HTMLVideoElement) => {
     const { duration, currentTime } = media;
     if (!duration || !Number.isFinite(duration)) return;
     if (duration - currentTime <= 0.04) {
@@ -76,7 +91,15 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     [smoothLoop]
   );
 
-  const videoClassName = `${styles.video} ${videoReady ? styles.videoReady : ""}`;
+  const handleMuxTimeUpdate = useCallback(
+    (event: CustomEvent<{ composed: true; detail: unknown }>) => {
+      const media = event.target as MuxPlayerElement | null;
+      if (media) smoothLoop(media);
+    },
+    [smoothLoop]
+  );
+
+  const videoClassName = `${styles.video} ${isPlaying ? styles.videoReady : ""}`;
 
   return (
     <button
@@ -93,28 +116,50 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
         <img
           src={posterUrl}
           alt=""
-          className={`${styles.poster} ${videoReady ? styles.posterHidden : ""}`}
+          className={`${styles.poster} ${isPlaying ? styles.posterHidden : ""}`}
           aria-hidden
           fetchPriority="high"
           decoding="async"
         />
       ) : null}
-      <video
-        ref={videoRef}
-        key={videoSrc}
-        className={videoClassName}
-        src={videoSrc}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        tabIndex={-1}
-        onLoadedData={markVideoReady}
-        onCanPlay={markVideoReady}
-        onPlaying={markVideoReady}
-        onTimeUpdate={handleVideoTimeUpdate}
-      />
+      {useMux ? (
+        <MuxPlayer
+          ref={muxRef}
+          playbackId={muxId}
+          streamType="on-demand"
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="auto"
+          poster=""
+          placeholder=""
+          minResolution={MinResolution.noLessThan1080p}
+          maxResolution={MaxResolution.upTo2160p}
+          renditionOrder={RenditionOrder.DESCENDING}
+          initialBandwidthEstimateKbps={15000}
+          nohotkeys
+          proudlyDisplayMuxBadge={false}
+          videoTitle="sweetiepie landing"
+          className={`${videoClassName} ${styles.muxPlayer}`}
+          onPlaying={handlePlaying}
+          onTimeUpdate={handleMuxTimeUpdate}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          className={videoClassName}
+          src={fileSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          onPlaying={handlePlaying}
+          onTimeUpdate={handleVideoTimeUpdate}
+        />
+      )}
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
         <h1 className={styles.title}>sweetiepie</h1>
