@@ -32,6 +32,16 @@ const orderableContentStructure: StructureResolver = (S, context) =>
   S.list()
     .title("Content")
     .items([
+      S.listItem()
+        .title("Landing page")
+        .id("siteSettings")
+        .child(
+          S.document()
+            .schemaType("siteSettings")
+            .documentId("siteSettings")
+            .title("Landing page")
+        ),
+      S.divider(),
       orderableDocumentListDeskItem({
         type: "project",
         title: "Projects",
@@ -40,7 +50,7 @@ const orderableContentStructure: StructureResolver = (S, context) =>
       }),
       S.divider(),
       ...S.documentTypeListItems().filter(
-        (item) => item.getId() !== "project"
+        (item) => item.getId() !== "project" && item.getId() !== "siteSettings"
       ),
     ]);
 

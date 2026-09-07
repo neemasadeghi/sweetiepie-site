@@ -1,13 +1,18 @@
-import { getProjects } from "@/lib/sanity-queries";
-import { metadataForWorkPath } from "@/lib/link-preview-metadata";
+import { getProjects, getLandingVideo } from "@/lib/sanity-queries";
+import { HomeLanding } from "@/components/HomeLanding";
 
 export const dynamic = "force-dynamic";
 
-export async function generateMetadata() {
-  const projects = await getProjects();
-  return metadataForWorkPath("/", "sweetiepie", projects);
-}
+export const metadata = {
+  title: "sweetiepie",
+  description: "sweetiepie — Director",
+};
 
-export default function HomePage() {
-  return null;
+export default async function HomePage() {
+  const [projects, landing] = await Promise.all([
+    getProjects(),
+    getLandingVideo(),
+  ]);
+
+  return <HomeLanding projects={projects ?? []} landing={landing} />;
 }

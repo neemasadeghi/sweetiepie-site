@@ -4,6 +4,7 @@ import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WORK_NAV } from "@/lib/work-nav";
+import { useLandingOverlayActive } from "@/hooks/useLandingOverlay";
 import styles from "./Navbar.module.css";
 
 const MOBILE_NAV_MQ = "(max-width: 768px)";
@@ -75,9 +76,11 @@ export function Navbar() {
   const linkClass = (href: string) =>
     `${styles.link} ${pathname === href ? styles.linkActive : ""}`;
 
+  const isLanding = useLandingOverlayActive();
+
   return (
     <header
-      className={`${styles.header} ${retracted ? styles.retracted : ""}`}
+      className={`${styles.header} ${isLanding ? styles.headerLanding : ""} ${retracted ? styles.retracted : ""}`}
     >
       <nav className={styles.nav}>
         <Link href="/" className={styles.logo} onClick={closeMenu}>

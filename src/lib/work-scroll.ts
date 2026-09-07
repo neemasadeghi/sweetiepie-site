@@ -9,10 +9,10 @@ export function saveWorkScrollState(pathname: string, scrollY: number) {
   sessionStorage.setItem(SCROLL_KEY, String(Math.round(scrollY)));
 }
 
-/** Return path saved when the user opened a project (defaults to home). */
+/** Return path saved when the user opened a project (defaults to work index). */
 export function getWorkReturnPath(): string {
-  if (typeof window === "undefined") return "/";
-  return sessionStorage.getItem(PATH_KEY) || "/";
+  if (typeof window === "undefined") return "/work";
+  return sessionStorage.getItem(PATH_KEY) || "/work";
 }
 
 function peekWorkScrollRestore(pathname: string): number | null {

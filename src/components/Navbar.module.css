@@ -10,6 +10,31 @@
   will-change: transform;
 }
 
+.headerLanding {
+  background: transparent;
+}
+
+.headerLanding .logo,
+.headerLanding .link,
+.headerLanding .socialLink {
+  color: #fff;
+}
+
+.headerLanding .burger span {
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .headerLanding .linksOpen {
+    background: rgba(0, 0, 0, 0.9);
+  }
+
+  .headerLanding .linksOpen .link,
+  .headerLanding .linksOpen .socialLink {
+    color: #fff;
+  }
+}
+
 .retracted {
   transform: translateY(-100%);
   pointer-events: none;

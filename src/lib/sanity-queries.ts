@@ -2,6 +2,8 @@ import { client } from "@/sanity/client";
 import { urlFor } from "@/sanity/image";
 import { resolvePublicSanityProjectId } from "@/lib/sanity-public-project";
 import { placeholderProjects } from "./placeholder-data";
+import type { LandingVideo } from "./landing-video";
+import { emptyLandingVideo } from "./landing-video";
 import type { Project } from "@/components/ProjectCard";
 
 const DEFAULT_DIRECTOR = "sweetiepie";
@@ -18,6 +20,25 @@ function withCinematographerDefault(value: string | undefined | null) {
 }
 
 const isSanityConfigured = !!resolvePublicSanityProjectId();
+
+export async function getLandingVideo(): Promise<LandingVideo> {
+  if (!isSanityConfigured || !client) return emptyLandingVideo;
+
+  try {
+    const raw = await client.fetch(
+      `*[_type == "siteSettings"][0] {
+        "landscapePlaybackId": landingMux.asset->playbackId,
+        "portraitPlaybackId": landingMuxPortrait.asset->playbackId
+      }`
+    );
+    if (!raw) return emptyLandingVideo;
+    const landscape = raw.landscapePlaybackId || "";
+    const portrait = raw.portraitPlaybackId || landscape;
+    return { landscapePlaybackId: landscape, portraitPlaybackId: portrait };
+  } catch {
+    return emptyLandingVideo;
+  }
+}
 
 export async function getProjects(): Promise<Project[] | null> {
   if (!isSanityConfigured || !client) return placeholderProjects;

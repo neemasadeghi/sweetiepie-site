@@ -1,5 +1,5 @@
 export const WORK_NAV = [
-  { href: "/", label: "All" },
+  { href: "/work", label: "All" },
   { href: "/music-video", label: "Music Video" },
   { href: "/commercial", label: "Commercial" },
   { href: "/documentary", label: "Documentary" },

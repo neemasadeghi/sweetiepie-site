@@ -1,6 +1,6 @@
 /** Work index routes: pathname → Sanity category slug (null = show all). */
 export const WORK_PATH_TO_CATEGORY: Record<string, string | null> = {
-  "/": null,
+  "/work": null,
   "/commercial": "commercial",
   "/music-video": "music-video",
   "/documentary": "narrative",

@@ -1,0 +1,10 @@
+.work {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.workVisible {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.5s ease 0.35s;
+}
