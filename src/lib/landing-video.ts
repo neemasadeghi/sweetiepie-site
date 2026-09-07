@@ -14,11 +14,11 @@ export const LANDING_VIDEO_FILES = {
   portrait: "/landing/hero-portrait.mp4",
 } as const;
 
-/** Progressive MP4 — fastest start for short landing loops (full quality). */
+/** Progressive MP4 — fastest start for short landing loops (full quality, faststart). */
 export function getLandingMp4Url(playbackId: string): string {
   const id = playbackId.trim();
   if (!id) return "";
-  return `https://stream.mux.com/${id}/high.mp4`;
+  return `https://stream.mux.com/${id}/highest.mp4`;
 }
 
 /** HLS manifest fallback. */

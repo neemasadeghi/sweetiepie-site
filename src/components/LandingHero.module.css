@@ -37,6 +37,29 @@
   overflow: hidden;
 }
 
+.videoControls {
+  position: absolute;
+  inset: 0;
+}
+
+.videoLandscape {
+  display: block;
+}
+
+.videoPortrait {
+  display: none;
+}
+
+@media (orientation: portrait) {
+  .videoLandscape {
+    display: none;
+  }
+
+  .videoPortrait {
+    display: block;
+  }
+}
+
 .video {
   position: absolute;
   inset: 0;
@@ -48,11 +71,6 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   z-index: 1;
-}
-
-.muxPlayer {
-  --controls: none;
-  --media-object-fit: cover;
 }
 
 .scrim {

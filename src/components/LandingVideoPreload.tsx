@@ -1,39 +1,60 @@
 import type { LandingVideo } from "@/lib/landing-video";
-import { getLandingStreamUrl } from "@/lib/landing-video";
+import { getLandingMp4Url } from "@/lib/landing-video";
 
 export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
   const landscapeId = landing.landscapePlaybackId.trim();
   const portraitId = landing.portraitPlaybackId.trim();
-  const landscapeStream = landscapeId ? getLandingStreamUrl(landscapeId) : "";
-  const portraitStream =
+  const landscapeMp4 = landscapeId ? getLandingMp4Url(landscapeId) : "";
+  const portraitMp4 =
     portraitId && portraitId !== landscapeId
-      ? getLandingStreamUrl(portraitId)
+      ? getLandingMp4Url(portraitId)
       : "";
 
-  if (!landscapeStream && !portraitStream) {
+  if (!landscapeMp4 && !portraitMp4) {
     return null;
   }
 
   return (
     <>
-      {landscapeStream ? (
-        <link
-          rel="preload"
-          as="fetch"
-          href={landscapeStream}
-          crossOrigin="anonymous"
-          fetchPriority="high"
-        />
+      {landscapeMp4 ? (
+        <>
+          <link
+            rel="preload"
+            as="fetch"
+            href={landscapeMp4}
+            crossOrigin="anonymous"
+            fetchPriority="high"
+          />
+          <link
+            rel="preload"
+            as="video"
+            href={landscapeMp4}
+            type="video/mp4"
+            crossOrigin="anonymous"
+            fetchPriority="high"
+          />
+        </>
       ) : null}
-      {portraitStream ? (
-        <link
-          rel="preload"
-          as="fetch"
-          href={portraitStream}
-          crossOrigin="anonymous"
-          media="(orientation: portrait)"
-          fetchPriority="high"
-        />
+      {portraitMp4 ? (
+        <>
+          <link
+            rel="preload"
+            as="fetch"
+            href={portraitMp4}
+            crossOrigin="anonymous"
+            media="(orientation: portrait)"
+            fetchPriority="high"
+          />
+          <link
+            rel="preload"
+            as="video"
+            href={portraitMp4}
+            type="video/mp4"
+            crossOrigin="anonymous"
+            media="(orientation: portrait)"
+            fetchPriority="high"
+          />
+        </>
       ) : null}
     </>
   );
