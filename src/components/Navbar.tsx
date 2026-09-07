@@ -157,8 +157,8 @@ export function Navbar() {
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
         >
-          <span />
-          <span />
+          <span className={styles.burgerLine} />
+          <span className={styles.burgerLine} />
         </button>
       </nav>
     </header>
