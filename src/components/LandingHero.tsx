@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { LandingVideo } from "@/lib/landing-video";
 import {
   getLandingMp4Url,
@@ -24,16 +24,14 @@ function getVideoElement(node: EventTarget | null): HTMLVideoElement | null {
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const posterHiddenRef = useRef(false);
-  const playStartedRef = useRef(false);
   const [showPoster, setShowPoster] = useState(true);
-  const [mp4Tier, setMp4Tier] = useState<"high" | "highest">("high");
   const isPortrait = useStablePortraitOrientation();
 
   const muxId = (
     isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
   ).trim();
   const videoSrc = muxId
-    ? getLandingMp4Url(muxId, mp4Tier)
+    ? getLandingMp4Url(muxId)
     : isPortrait
       ? LANDING_VIDEO_FILES.portrait
       : LANDING_VIDEO_FILES.landscape;
@@ -75,44 +73,30 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     [hidePoster]
   );
 
-  const startPlayback = useCallback((video: HTMLVideoElement) => {
-    if (playStartedRef.current || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-      return;
+  const tryPlay = useCallback((video: HTMLVideoElement) => {
+    if (video.paused) {
+      video.play().catch(() => {});
     }
-
-    playStartedRef.current = true;
-    video.play().catch(() => {
-      playStartedRef.current = false;
-    });
   }, []);
 
   useEffect(() => {
     posterHiddenRef.current = false;
-    playStartedRef.current = false;
     setShowPoster(true);
-    setMp4Tier("high");
-  }, [muxId, isPortrait]);
+  }, [videoSrc]);
 
-  useLayoutEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const onReady = () => startPlayback(video);
-
-    video.addEventListener("loadeddata", onReady);
-    video.addEventListener("canplay", onReady);
-
-    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-      onReady();
-    } else {
-      video.load();
-    }
-
+  useEffect(() => {
+    const retryTimer = window.setInterval(() => {
+      const video = videoRef.current;
+      if (video) tryPlay(video);
+    }, 100);
+    const stopTimer = window.setTimeout(() => {
+      window.clearInterval(retryTimer);
+    }, 10000);
     return () => {
-      video.removeEventListener("loadeddata", onReady);
-      video.removeEventListener("canplay", onReady);
+      window.clearInterval(retryTimer);
+      window.clearTimeout(stopTimer);
     };
-  }, [videoSrc, startPlayback]);
+  }, [videoSrc, tryPlay]);
 
   return (
     <button
@@ -150,28 +134,13 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           playsInline
           preload="auto"
           tabIndex={-1}
-          onLoadedMetadata={(event) => {
-            const video = getVideoElement(event.currentTarget);
-            if (!video) return;
-            try {
-              video.currentTime = 0;
-            } catch {
-              /* ignore seek errors before data is ready */
-            }
-          }}
           onLoadedData={(event) => {
             const video = getVideoElement(event.currentTarget);
-            if (video) startPlayback(video);
+            if (video) tryPlay(video);
           }}
           onCanPlay={(event) => {
             const video = getVideoElement(event.currentTarget);
-            if (video) startPlayback(video);
-          }}
-          onError={() => {
-            if (mp4Tier === "high") {
-              playStartedRef.current = false;
-              setMp4Tier("highest");
-            }
+            if (video) tryPlay(video);
           }}
           onPlaying={(event) => {
             const video = getVideoElement(event.currentTarget);

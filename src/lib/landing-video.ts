@@ -14,14 +14,11 @@ export const LANDING_VIDEO_FILES = {
   portrait: "/landing/hero-portrait.mp4",
 } as const;
 
-/** Progressive MP4 — prefer high (1080p, faster start), fall back to highest. */
-export function getLandingMp4Url(
-  playbackId: string,
-  tier: "high" | "highest" = "high"
-): string {
+/** Progressive MP4 — full-quality static rendition from Mux (high.mp4 is not available). */
+export function getLandingMp4Url(playbackId: string): string {
   const id = playbackId.trim();
   if (!id) return "";
-  return `https://stream.mux.com/${id}/${tier}.mp4`;
+  return `https://stream.mux.com/${id}/highest.mp4`;
 }
 
 /** HLS stream — fast adaptive start, ramps to full quality. */
