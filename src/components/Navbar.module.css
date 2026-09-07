@@ -17,21 +17,21 @@
 .headerLanding .logo,
 .headerLanding .link,
 .headerLanding .socialLink {
-  color: #fff;
+  color: var(--bg-primary);
 }
 
 .headerLanding .burger span {
-  background: #fff;
+  background: var(--bg-primary);
 }
 
 @media (max-width: 768px) {
   .headerLanding .linksOpen {
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(255, 216, 239, 0.97);
   }
 
   .headerLanding .linksOpen .link,
   .headerLanding .linksOpen .socialLink {
-    color: #fff;
+    color: var(--text-primary);
   }
 }
 

@@ -1,5 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
+import {
+  SITE_HEADLINE,
+  SITE_NAME,
+  SITE_SHARE_DESCRIPTION,
+  SITE_TAGLINE,
+} from "@/lib/site-brand";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -28,22 +34,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "sweetiepie · director duo",
-    template: "%s · sweetiepie",
+    default: SITE_HEADLINE,
+    template: `%s · ${SITE_NAME}`,
   },
-  description: "sweetiepie — Director duo. Music videos, commercials & documentary.",
+  description: `${SITE_TAGLINE} — ${SITE_SHARE_DESCRIPTION}`,
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
-    siteName: "sweetiepie",
-    title: "sweetiepie · director duo",
-    description: "Director duo — Music videos, commercials & documentary.",
+    siteName: SITE_NAME,
+    title: SITE_HEADLINE,
+    description: SITE_SHARE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "sweetiepie · director duo",
-    description: "Director duo — Music videos, commercials & documentary.",
+    title: SITE_HEADLINE,
+    description: SITE_SHARE_DESCRIPTION,
   },
 };
 

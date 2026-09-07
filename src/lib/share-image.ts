@@ -21,5 +21,5 @@ export function getProjectShareDescription(project: ShareProject): string {
     project.cinematographer ? `dp ${project.cinematographer}` : "",
     project.format,
   ].filter(Boolean);
-  return parts.join(" · ") || "sweetiepie — Director";
+  return parts.join(" · ") || "sweetiepie · director duo";
 }
