@@ -1,18 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useSyncExternalStore } from "react";
 import MuxPlayer, { MaxResolution } from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
-import {
-  LANDING_VIDEO_FILES,
-  getLandingMp4Url,
-  getLandingPosterUrl,
-} from "@/lib/landing-video";
+import { LANDING_VIDEO_FILES } from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
 
 const PORTRAIT_MQ = "(orientation: portrait)";
-const MOTION_THRESHOLD_SEC = 0.08;
 
 function subscribeOrientation(cb: () => void) {
   const mq = window.matchMedia(PORTRAIT_MQ);
@@ -24,8 +19,6 @@ function getPortraitSnapshot() {
   return window.matchMedia(PORTRAIT_MQ).matches;
 }
 
-type PlaybackMode = "mp4" | "hls";
-
 type LandingHeroProps = {
   landing: LandingVideo;
   revealed: boolean;
@@ -33,10 +26,8 @@ type LandingHeroProps = {
 };
 
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const muxRef = useRef<MuxPlayerElement | null>(null);
-  const [showPoster, setShowPoster] = useState(true);
-  const [playbackMode, setPlaybackMode] = useState<PlaybackMode>("mp4");
+  const videoRef = useRef<HTMLVideoElement>(null);
   const isPortrait = useSyncExternalStore(
     subscribeOrientation,
     getPortraitSnapshot,
@@ -49,57 +40,25 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const fileSrc = isPortrait
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
-  const mp4Src = muxId ? getLandingMp4Url(muxId) : "";
-  const useMux = Boolean(muxId);
-  const posterUrl = useMux ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
-
-  useEffect(() => {
-    setShowPoster(true);
-    setPlaybackMode("mp4");
-  }, [muxId, fileSrc, isPortrait]);
-
-  const markMotion = useCallback((media: HTMLVideoElement | MuxPlayerElement) => {
-    if (!media.paused && media.currentTime > MOTION_THRESHOLD_SEC) {
-      setShowPoster(false);
-    }
-  }, []);
-
-  const tryPlayNative = useCallback(() => {
-    videoRef.current?.play().catch(() => {});
-  }, []);
-
-  const tryPlayMux = useCallback(() => {
-    muxRef.current?.play().catch(() => {});
-  }, []);
 
   const tryPlay = useCallback(() => {
-    if (useMux && playbackMode === "hls") {
-      tryPlayMux();
-      return;
+    const media = muxId ? muxRef.current : videoRef.current;
+    if (media?.paused) {
+      media.play().catch(() => {});
     }
-    tryPlayNative();
-  }, [useMux, playbackMode, tryPlayMux, tryPlayNative]);
+  }, [muxId]);
 
   useEffect(() => {
     tryPlay();
-    const retryTimer = window.setInterval(tryPlay, 120);
+    const retryTimer = window.setInterval(tryPlay, 80);
     const stopTimer = window.setTimeout(() => {
       window.clearInterval(retryTimer);
-    }, 12000);
+    }, 10000);
     return () => {
       window.clearInterval(retryTimer);
       window.clearTimeout(stopTimer);
     };
-  }, [muxId, fileSrc, playbackMode, tryPlay]);
-
-  const switchToHls = useCallback(() => {
-    setPlaybackMode("hls");
-    setShowPoster(true);
-  }, []);
-
-  const handleNativeError = useCallback(() => {
-    if (useMux) switchToHls();
-  }, [useMux, switchToHls]);
+  }, [muxId, fileSrc, tryPlay]);
 
   const smoothLoop = useCallback((media: HTMLVideoElement | MuxPlayerElement) => {
     const { duration, currentTime } = media;
@@ -109,27 +68,20 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     }
   }, []);
 
-  const handleNativeTimeUpdate = useCallback(
+  const handleTimeUpdate = useCallback(
     (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      const media = event.currentTarget;
-      markMotion(media);
-      smoothLoop(media);
+      smoothLoop(event.currentTarget);
     },
-    [markMotion, smoothLoop]
+    [smoothLoop]
   );
 
   const handleMuxTimeUpdate = useCallback(
     (event: CustomEvent<{ composed: true; detail: unknown }>) => {
       const media = event.target as MuxPlayerElement | null;
-      if (!media) return;
-      markMotion(media);
-      smoothLoop(media);
+      if (media) smoothLoop(media);
     },
-    [markMotion, smoothLoop]
+    [smoothLoop]
   );
-
-  const showNativeVideo = !useMux || playbackMode === "mp4";
-  const nativeSrc = mp4Src || fileSrc;
 
   return (
     <button
@@ -142,24 +94,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     >
       <div className={styles.fallback} aria-hidden />
       <div className={styles.media}>
-        {showNativeVideo ? (
-          <video
-            ref={videoRef}
-            className={styles.video}
-            src={nativeSrc}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            crossOrigin={mp4Src ? "anonymous" : undefined}
-            tabIndex={-1}
-            onCanPlay={tryPlayNative}
-            onPlaying={() => tryPlayNative()}
-            onError={handleNativeError}
-            onTimeUpdate={handleNativeTimeUpdate}
-          />
-        ) : (
+        {muxId ? (
           <MuxPlayer
             ref={muxRef}
             playbackId={muxId}
@@ -173,28 +108,34 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
             placeholder=""
             startTime={0.001}
             minPreloadSegments={1}
-            initialBandwidthEstimateKbps={12000}
+            initialBandwidthEstimateKbps={8000}
             maxResolution={MaxResolution.upTo2160p}
             nohotkeys
             proudlyDisplayMuxBadge={false}
             videoTitle="sweetiepie landing"
             className={`${styles.video} ${styles.muxPlayer}`}
-            onCanPlay={tryPlayMux}
-            onPlaying={() => tryPlayMux()}
+            onLoadedMetadata={tryPlay}
+            onCanPlay={tryPlay}
+            onPlaying={tryPlay}
             onTimeUpdate={handleMuxTimeUpdate}
           />
-        )}
-        {posterUrl && showPoster ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={posterUrl}
-            alt=""
-            className={styles.poster}
-            aria-hidden
-            fetchPriority="high"
-            decoding="async"
+        ) : (
+          <video
+            ref={videoRef}
+            className={styles.video}
+            src={fileSrc}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex={-1}
+            onLoadedMetadata={tryPlay}
+            onCanPlay={tryPlay}
+            onPlaying={tryPlay}
+            onTimeUpdate={handleTimeUpdate}
           />
-        ) : null}
+        )}
       </div>
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
