@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import type { Project } from "@/components/ProjectCard";
 import type { LandingVideo } from "@/lib/landing-video";
-import { getLandingPosterUrl } from "@/lib/landing-video";
 import { filterProjectsByCategory } from "@/lib/filter-projects";
 import { getProjectShareImage } from "@/lib/share-image";
 import {
@@ -13,34 +12,10 @@ import {
 import { getSiteUrl } from "@/lib/site-url";
 import { WORK_PATH_TO_CATEGORY } from "@/lib/work-paths";
 
-function getLandingShareImage(landing: LandingVideo): string | undefined {
-  const playbackId = landing.landscapePlaybackId.trim();
-  if (!playbackId) return undefined;
-  return getLandingPosterUrl(playbackId, { width: 1200, height: 630 });
-}
-
-function shareImageMeta(imageUrl: string, alt: string) {
-  return {
-    url: imageUrl,
-    secureUrl: imageUrl,
-    alt,
-    width: 1200,
-    height: 630,
-    type: "image/jpeg" as const,
-  };
-}
-
 export function metadataForHome(
-  projects: Project[] | null,
-  landing: LandingVideo
+  _projects: Project[] | null,
+  _landing: LandingVideo
 ): Metadata {
-  const imageUrl =
-    getLandingShareImage(landing) ||
-    (projects?.[0] ? getProjectShareImage(projects[0]) : undefined);
-  const shareImage = imageUrl
-    ? shareImageMeta(imageUrl, `${SITE_HEADLINE} — preview`)
-    : undefined;
-
   return {
     title: { absolute: SITE_HEADLINE },
     description: `${SITE_TAGLINE} — ${SITE_SHARE_DESCRIPTION}`,
@@ -52,13 +27,11 @@ export function metadataForHome(
       url: getSiteUrl(),
       siteName: SITE_NAME,
       locale: "en_US",
-      ...(shareImage ? { images: [shareImage] } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title: SITE_HEADLINE,
       description: SITE_SHARE_DESCRIPTION,
-      ...(imageUrl ? { images: [imageUrl] } : {}),
     },
   };
 }
