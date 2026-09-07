@@ -47,7 +47,7 @@
   visibility: visible;
   transform: translateZ(0);
   will-change: opacity;
-  transition: opacity var(--landing-crossfade-ms, 480ms) ease-out;
+  transition: opacity var(--landing-crossfade-ms, 120ms) ease-out;
 }
 
 .posterHidden {
@@ -104,7 +104,7 @@
   z-index: 1;
   opacity: 0;
   will-change: opacity;
-  transition: opacity var(--landing-crossfade-ms, 480ms) ease-out;
+  transition: opacity var(--landing-crossfade-ms, 120ms) ease-out;
 }
 
 .videoReady {

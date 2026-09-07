@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { attachLandingPlayback } from "@/lib/landing-playback";
+import type { LandingPlaybackHandle } from "@/lib/landing-playback";
 import styles from "./LandingHero.module.css";
 
-const MOTION_THRESHOLD_SEC = 0.05;
-const CROSSFADE_MS = 480;
+const CROSSFADE_MS = 120;
+const START_GUARD_SEC = 0.2;
 
 function isVisibleVideo(video: HTMLVideoElement) {
   return window.getComputedStyle(video).display !== "none";
@@ -22,6 +24,7 @@ export function LandingHeroVideoControls({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const revealedRef = useRef(false);
+  const handlesRef = useRef<Map<HTMLVideoElement, LandingPlaybackHandle>>(new Map());
 
   const resetLayers = useCallback((root: HTMLElement) => {
     revealedRef.current = false;
@@ -36,13 +39,10 @@ export function LandingHeroVideoControls({
 
   const revealPlayback = useCallback((root: HTMLElement, video: HTMLVideoElement) => {
     if (revealedRef.current || !isVisibleVideo(video)) return;
-    if (
-      video.paused ||
-      video.readyState < HTMLMediaElement.HAVE_FUTURE_DATA ||
-      video.currentTime <= MOTION_THRESHOLD_SEC
-    ) {
+    if (video.paused || video.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
       return;
     }
+    if (video.currentTime > START_GUARD_SEC) return;
 
     const crossfade = () => {
       if (revealedRef.current) return;
@@ -58,9 +58,7 @@ export function LandingHeroVideoControls({
       return;
     }
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(crossfade);
-    });
+    crossfade();
   }, []);
 
   const smoothLoop = useCallback((media: HTMLVideoElement) => {
@@ -71,15 +69,49 @@ export function LandingHeroVideoControls({
     }
   }, []);
 
-  useEffect(() => {
+  const bindVideos = useCallback((root: HTMLElement) => {
+    handlesRef.current.forEach((handle) => handle.destroy());
+    handlesRef.current.clear();
+
+    const videos = Array.from(root.querySelectorAll("video"));
+    for (const video of videos) {
+      if (!video.dataset.muxPlaybackId && !video.dataset.mp4Fallback) continue;
+
+      const handle = attachLandingPlayback(video);
+      if (handle) {
+        handlesRef.current.set(video, handle);
+        handle.play();
+      }
+    }
+  }, []);
+
+  useLayoutEffect(() => {
     const root = ref.current;
     if (!root) return;
 
     resetLayers(root);
+    bindVideos(root);
+
+    return () => {
+      handlesRef.current.forEach((handle) => handle.destroy());
+      handlesRef.current.clear();
+    };
+  }, [bindVideos, resetLayers]);
+
+  useEffect(() => {
+    const root = ref.current;
+    if (!root) return;
 
     const tryPlay = () => {
       const video = activeVideo(root);
-      if (video?.paused) {
+      if (!video) return;
+      const handle = handlesRef.current.get(video);
+      if (handle) {
+        handle.play();
+        return;
+      }
+      if (video.paused) {
+        if (video.currentTime > 0.12) video.currentTime = 0;
         video.play().catch(() => {});
       }
     };
@@ -91,11 +123,14 @@ export function LandingHeroVideoControls({
     };
 
     const onPlaying = (event: Event) => {
-      revealPlayback(root, event.currentTarget as HTMLVideoElement);
+      const video = event.currentTarget as HTMLVideoElement;
+      if (video.currentTime > 0.12) video.currentTime = 0;
+      revealPlayback(root, video);
     };
 
     const onOrientationChange = () => {
       resetLayers(root);
+      bindVideos(root);
       tryPlay();
     };
 
@@ -104,17 +139,16 @@ export function LandingHeroVideoControls({
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("playing", onPlaying);
       video.addEventListener("canplay", tryPlay);
-      video.addEventListener("loadeddata", tryPlay);
     }
 
     const orientationQuery = window.matchMedia("(orientation: portrait)");
     orientationQuery.addEventListener("change", onOrientationChange);
 
     tryPlay();
-    const retryTimer = window.setInterval(tryPlay, 80);
+    const retryTimer = window.setInterval(tryPlay, 60);
     const stopTimer = window.setTimeout(() => {
       window.clearInterval(retryTimer);
-    }, 10000);
+    }, 12000);
 
     return () => {
       window.clearInterval(retryTimer);
@@ -124,10 +158,9 @@ export function LandingHeroVideoControls({
         video.removeEventListener("timeupdate", onTimeUpdate);
         video.removeEventListener("playing", onPlaying);
         video.removeEventListener("canplay", tryPlay);
-        video.removeEventListener("loadeddata", tryPlay);
       }
     };
-  }, [resetLayers, revealPlayback, smoothLoop]);
+  }, [bindVideos, resetLayers, revealPlayback, smoothLoop]);
 
   useEffect(() => {
     const root = ref.current;
@@ -136,7 +169,10 @@ export function LandingHeroVideoControls({
     const onTransitionEnd = (event: TransitionEvent) => {
       if (event.propertyName !== "opacity") return;
       const target = event.target as HTMLElement;
-      if (!target.matches("[data-landing-poster]") || !target.classList.contains(styles.posterHidden)) {
+      if (
+        !target.matches("[data-landing-poster]") ||
+        !target.classList.contains(styles.posterHidden)
+      ) {
         return;
       }
       target.style.visibility = "hidden";
