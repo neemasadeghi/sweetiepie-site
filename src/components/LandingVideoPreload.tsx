@@ -8,11 +8,15 @@ export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
   const landscapeId = landing.landscapePlaybackId.trim();
   const portraitId = landing.portraitPlaybackId.trim();
   const landscapePoster = landscapeId
-    ? getLandingPosterUrl(landscapeId)
+    ? getLandingPosterUrl(landscapeId, { width: 2560, height: 1440 })
     : "";
   const portraitPoster =
     portraitId && portraitId !== landscapeId
-      ? getLandingPosterUrl(portraitId, { portrait: true })
+      ? getLandingPosterUrl(portraitId, {
+          portrait: true,
+          width: 1440,
+          height: 2560,
+        })
       : "";
   const landscapeStream = landscapeId ? getLandingStreamUrl(landscapeId) : "";
   const portraitStream =

@@ -36,7 +36,7 @@ export function getLandingPosterUrl(
   const id = playbackId.trim();
   if (!id) return "";
   const portrait = options.portrait ?? false;
-  const width = options.width ?? (portrait ? 1080 : 1920);
-  const height = options.height ?? (portrait ? 1920 : 1080);
+  const width = options.width ?? (portrait ? 1440 : 2560);
+  const height = options.height ?? (portrait ? 2560 : 1440);
   return `https://image.mux.com/${id}/thumbnail.jpg?width=${width}&height=${height}&fit_mode=smartcrop&time=0`;
 }

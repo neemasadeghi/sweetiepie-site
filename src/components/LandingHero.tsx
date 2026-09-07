@@ -1,7 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import MuxPlayer, { MaxResolution } from "@mux/mux-player-react";
+import MuxPlayer, {
+  MaxResolution,
+  MinResolution,
+  RenditionOrder,
+} from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
 import {
@@ -43,7 +47,11 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
   const posterUrl = muxId
-    ? getLandingPosterUrl(muxId, { portrait: isPortrait })
+    ? getLandingPosterUrl(muxId, {
+        portrait: isPortrait,
+        width: isPortrait ? 1440 : 2560,
+        height: isPortrait ? 2560 : 1440,
+      })
     : "";
 
   useEffect(() => {
@@ -148,9 +156,11 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
             poster=""
             placeholder=""
             startTime={0}
-            minPreloadSegments={1}
-            initialBandwidthEstimateKbps={12000}
+            minPreloadSegments={2}
+            initialBandwidthEstimateKbps={20000}
+            minResolution={MinResolution.noLessThan1080p}
             maxResolution={MaxResolution.upTo2160p}
+            renditionOrder={RenditionOrder.DESCENDING}
             nohotkeys
             proudlyDisplayMuxBadge={false}
             videoTitle="sweetiepie landing"
