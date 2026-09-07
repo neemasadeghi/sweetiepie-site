@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, DM_Serif_Display } from "next/font/google";
+import { DM_Sans } from "next/font/google";
 import {
   SITE_HEADLINE,
   SITE_NAME,
@@ -14,14 +14,6 @@ const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["300", "400", "500"],
   variable: "--font-body",
-  display: "swap",
-});
-
-const dmSerif = DM_Serif_Display({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
-  variable: "--font-display",
   display: "swap",
 });
 
@@ -64,7 +56,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${dmSerif.variable}`}>
+    <html lang="en" className={dmSans.variable}>
       <body>
         <MuxPreconnect />
         {children}
