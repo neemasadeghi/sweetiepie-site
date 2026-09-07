@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { Project } from "@/components/ProjectCard";
 import type { LandingVideo } from "@/lib/landing-video";
+import { getLandingPosterUrl } from "@/lib/landing-video";
 import { filterProjectsByCategory } from "@/lib/filter-projects";
 import { getProjectShareImage } from "@/lib/share-image";
 import {
@@ -15,7 +16,7 @@ import { WORK_PATH_TO_CATEGORY } from "@/lib/work-paths";
 function getLandingShareImage(landing: LandingVideo): string | undefined {
   const playbackId = landing.landscapePlaybackId.trim();
   if (!playbackId) return undefined;
-  return `https://image.mux.com/${playbackId}/thumbnail.jpg?width=1200&height=630&fit_mode=smartcrop&time=1`;
+  return getLandingPosterUrl(playbackId, { width: 1200, height: 630 });
 }
 
 function shareImageMeta(imageUrl: string, alt: string) {

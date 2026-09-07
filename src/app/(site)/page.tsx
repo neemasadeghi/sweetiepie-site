@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getProjects, getLandingVideo } from "@/lib/sanity-queries";
 import { metadataForHome } from "@/lib/link-preview-metadata";
 import { HomeLanding } from "@/components/HomeLanding";
+import { LandingVideoPreload } from "@/components/LandingVideoPreload";
 
 export const dynamic = "force-dynamic";
 
@@ -20,5 +21,10 @@ export default async function HomePage() {
     getLandingVideo(),
   ]);
 
-  return <HomeLanding projects={projects ?? []} landing={landing} />;
+  return (
+    <>
+      <LandingVideoPreload landing={landing} />
+      <HomeLanding projects={projects ?? []} landing={landing} />
+    </>
+  );
 }

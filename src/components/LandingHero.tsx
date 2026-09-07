@@ -1,14 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import MuxPlayer, {
-  MaxResolution,
-  MinResolution,
-  RenditionOrder,
-} from "@mux/mux-player-react";
+import MuxPlayer, { MaxResolution } from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
-import { LANDING_VIDEO_FILES } from "@/lib/landing-video";
+import { LANDING_VIDEO_FILES, getLandingPosterUrl } from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
 
 const PORTRAIT_MQ = "(orientation: portrait)";
@@ -46,6 +42,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
   const useMux = Boolean(muxId);
+  const posterUrl = useMux ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
 
   useEffect(() => {
     setVideoReady(false);
@@ -101,6 +98,17 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       disabled={revealed}
     >
       <div className={styles.fallback} aria-hidden />
+      {posterUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={posterUrl}
+          alt=""
+          className={`${styles.poster} ${videoReady ? styles.posterHidden : ""}`}
+          aria-hidden
+          fetchPriority="high"
+          decoding="async"
+        />
+      ) : null}
       {useMux ? (
         <MuxPlayer
           ref={muxRef}
@@ -113,13 +121,12 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           preload="auto"
           poster=""
           placeholder=""
-          minResolution={MinResolution.noLessThan1080p}
           maxResolution={MaxResolution.upTo2160p}
-          renditionOrder={RenditionOrder.DESCENDING}
           nohotkeys
           proudlyDisplayMuxBadge={false}
           videoTitle="sweetiepie landing"
           className={`${videoClassName} ${styles.muxPlayer}`}
+          onLoadedData={markVideoReady}
           onPlaying={markVideoReady}
           onTimeUpdate={handleMuxTimeUpdate}
         />
@@ -134,6 +141,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           playsInline
           preload="auto"
           tabIndex={-1}
+          onLoadedData={markVideoReady}
           onPlaying={markVideoReady}
           onTimeUpdate={handleVideoTimeUpdate}
         />
