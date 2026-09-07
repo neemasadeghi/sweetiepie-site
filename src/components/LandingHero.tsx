@@ -8,25 +8,15 @@ import { LANDING_VIDEO_FILES, getLandingPosterUrl } from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
 
 const PORTRAIT_MQ = "(orientation: portrait)";
-const MOBILE_MQ = "(max-width: 768px)";
 
-function subscribePortraitLayout(cb: () => void) {
-  const portraitMq = window.matchMedia(PORTRAIT_MQ);
-  const mobileMq = window.matchMedia(MOBILE_MQ);
-  const handler = () => cb();
-  portraitMq.addEventListener("change", handler);
-  mobileMq.addEventListener("change", handler);
-  return () => {
-    portraitMq.removeEventListener("change", handler);
-    mobileMq.removeEventListener("change", handler);
-  };
+function subscribeOrientation(cb: () => void) {
+  const mq = window.matchMedia(PORTRAIT_MQ);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
 }
 
-function getPortraitLayoutSnapshot() {
-  return (
-    window.matchMedia(PORTRAIT_MQ).matches ||
-    window.matchMedia(MOBILE_MQ).matches
-  );
+function getPortraitSnapshot() {
+  return window.matchMedia(PORTRAIT_MQ).matches;
 }
 
 type LandingHeroProps = {
@@ -39,24 +29,20 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const muxRef = useRef<MuxPlayerElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
-  const isPortraitLayout = useSyncExternalStore(
-    subscribePortraitLayout,
-    getPortraitLayoutSnapshot,
+  const isPortrait = useSyncExternalStore(
+    subscribeOrientation,
+    getPortraitSnapshot,
     () => false
   );
 
-  const landscapeId = landing.landscapePlaybackId.trim();
-  const portraitId = landing.portraitPlaybackId.trim();
   const muxId = (
-    isPortraitLayout && portraitId ? portraitId : landscapeId
+    isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
   ).trim();
-  const fileSrc = isPortraitLayout
+  const fileSrc = isPortrait
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
   const useMux = Boolean(muxId);
-  const posterUrl = useMux
-    ? getLandingPosterUrl(muxId, { portrait: isPortraitLayout && Boolean(portraitId) })
-    : "";
+  const posterUrl = useMux ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
 
   useEffect(() => {
     setVideoReady(false);
@@ -112,62 +98,54 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       disabled={revealed}
     >
       <div className={styles.fallback} aria-hidden />
-      <div className={styles.mediaFill} aria-hidden>
-        {posterUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={posterUrl}
-            alt=""
-            className={`${styles.poster} ${videoReady ? styles.posterHidden : ""}`}
-            fetchPriority="high"
-            decoding="async"
-          />
-        ) : null}
-        {useMux ? (
-          <MuxPlayer
-            ref={muxRef}
-            playbackId={muxId}
-            streamType="on-demand"
-            muted
-            loop
-            autoPlay
-            playsInline
-            preload="auto"
-            poster=""
-            placeholder=""
-            maxResolution={MaxResolution.upTo2160p}
-            nohotkeys
-            proudlyDisplayMuxBadge={false}
-            videoTitle="sweetiepie landing"
-            className={`${videoClassName} ${styles.muxPlayer}`}
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "block",
-              "--media-object-fit": "cover",
-              "--media-object-position": "center",
-            }}
-            onLoadedData={markVideoReady}
-            onPlaying={markVideoReady}
-            onTimeUpdate={handleMuxTimeUpdate}
-          />
-        ) : (
-          <video
-            ref={videoRef}
-            className={videoClassName}
-            src={fileSrc}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            tabIndex={-1}
-            onLoadedData={markVideoReady}
-            onPlaying={markVideoReady}
-            onTimeUpdate={handleVideoTimeUpdate}
-          />
-        )}
-      </div>
+      {posterUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={posterUrl}
+          alt=""
+          className={`${styles.poster} ${videoReady ? styles.posterHidden : ""}`}
+          aria-hidden
+          fetchPriority="high"
+          decoding="async"
+        />
+      ) : null}
+      {useMux ? (
+        <MuxPlayer
+          ref={muxRef}
+          playbackId={muxId}
+          streamType="on-demand"
+          muted
+          loop
+          autoPlay
+          playsInline
+          preload="auto"
+          poster=""
+          placeholder=""
+          maxResolution={MaxResolution.upTo2160p}
+          nohotkeys
+          proudlyDisplayMuxBadge={false}
+          videoTitle="sweetiepie landing"
+          className={`${videoClassName} ${styles.muxPlayer}`}
+          onLoadedData={markVideoReady}
+          onPlaying={markVideoReady}
+          onTimeUpdate={handleMuxTimeUpdate}
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          className={videoClassName}
+          src={fileSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          onLoadedData={markVideoReady}
+          onPlaying={markVideoReady}
+          onTimeUpdate={handleVideoTimeUpdate}
+        />
+      )}
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
         <h1 className={styles.title}>sweetiepie</h1>
