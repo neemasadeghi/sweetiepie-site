@@ -68,7 +68,6 @@ export function LandingHeroEarlyVideo({
         <video
           className={styles.video}
           src={landscapeSrc || portraitSrc}
-          poster={poster || undefined}
           crossOrigin={landscapeId || portraitId ? "anonymous" : undefined}
           {...videoProps}
         />
@@ -97,14 +96,12 @@ export function LandingHeroEarlyVideo({
       <video
         className={`${styles.video} ${styles.videoLandscape}`}
         src={landscapeSrc}
-        poster={landscapePoster || undefined}
         crossOrigin={landscapeId ? "anonymous" : undefined}
         {...videoProps}
       />
       <video
         className={`${styles.video} ${styles.videoPortrait}`}
         src={portraitSrc}
-        poster={portraitPoster || undefined}
         crossOrigin={portraitId ? "anonymous" : undefined}
         {...videoProps}
       />
