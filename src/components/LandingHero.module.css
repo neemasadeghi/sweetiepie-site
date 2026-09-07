@@ -30,6 +30,13 @@
   z-index: 0;
 }
 
+.media {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  overflow: hidden;
+}
+
 .poster {
   position: absolute;
   inset: 0;
@@ -38,13 +45,8 @@
   object-fit: cover;
   object-position: center;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
   transform: translateZ(0);
-}
-
-.posterHidden {
-  opacity: 0;
-  transition: none;
 }
 
 .video {
@@ -57,12 +59,12 @@
   pointer-events: none;
   transform: translateZ(0);
   backface-visibility: hidden;
-  opacity: 0;
-  z-index: 2;
+  z-index: 1;
 }
 
-.videoReady {
-  opacity: 1;
+.muxPlayer {
+  --controls: none;
+  --media-object-fit: cover;
 }
 
 .scrim {
