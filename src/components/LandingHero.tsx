@@ -1,11 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import MuxPlayer, {
-  MaxResolution,
-  MinResolution,
-  RenditionOrder,
-} from "@mux/mux-player-react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import MuxPlayer, { MaxResolution, MinResolution } from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
 import {
@@ -33,6 +29,7 @@ type LandingHeroProps = {
 };
 
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
+  const playerRef = useRef<MuxPlayerElement | null>(null);
   const [showPoster, setShowPoster] = useState(true);
   const isPortrait = useSyncExternalStore(
     subscribeOrientation,
@@ -49,7 +46,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const posterUrl = muxId
     ? getLandingPosterUrl(muxId, {
         portrait: isPortrait,
-        width: isPortrait ? 1440 : 2560,
+        width: isPortrait ? 1920 : 2560,
         height: isPortrait ? 2560 : 1440,
       })
     : "";
@@ -67,52 +64,41 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const hidePosterWhenPlaying = useCallback(
     (media: HTMLVideoElement | MuxPlayerElement) => {
       if (
+        showPoster &&
         !media.paused &&
-        media.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
-        media.currentTime > 0.04
+        media.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA &&
+        media.currentTime > 0.05
       ) {
         setShowPoster(false);
       }
     },
-    []
+    [showPoster]
   );
-
-  const smoothLoop = useCallback((media: HTMLVideoElement | MuxPlayerElement) => {
-    const { duration, currentTime } = media;
-    if (!duration || !Number.isFinite(duration) || currentTime < 1) return;
-    if (duration - currentTime <= 0.05) {
-      media.currentTime = 0.001;
-    }
-  }, []);
 
   const handleMuxTimeUpdate = useCallback(
     (event: CustomEvent<{ composed: true; detail: unknown }>) => {
       const media = event.target as MuxPlayerElement | null;
-      if (!media) return;
-      hidePosterWhenPlaying(media);
-      smoothLoop(media);
+      if (media) hidePosterWhenPlaying(media);
     },
-    [hidePosterWhenPlaying, smoothLoop]
+    [hidePosterWhenPlaying]
   );
 
   const handleNativeTimeUpdate = useCallback(
     (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      const media = event.currentTarget;
-      hidePosterWhenPlaying(media);
-      smoothLoop(media);
+      hidePosterWhenPlaying(event.currentTarget);
     },
-    [hidePosterWhenPlaying, smoothLoop]
+    [hidePosterWhenPlaying]
   );
 
   useEffect(() => {
     const retryTimer = window.setInterval(() => {
-      const mux = document.querySelector("mux-player") as MuxPlayerElement | null;
+      const mux = playerRef.current;
       const native = document.querySelector(
         "[data-landing-native-video]"
       ) as HTMLVideoElement | null;
       if (mux) tryPlay(mux);
       if (native) tryPlay(native);
-    }, 100);
+    }, 80);
     const stopTimer = window.setTimeout(() => {
       window.clearInterval(retryTimer);
     }, 10000);
@@ -145,6 +131,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
         ) : null}
         {muxId ? (
           <MuxPlayer
+            ref={playerRef}
             key={muxId}
             playbackId={muxId}
             streamType="on-demand"
@@ -156,15 +143,17 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
             poster=""
             placeholder=""
             startTime={0}
-            minPreloadSegments={2}
-            initialBandwidthEstimateKbps={20000}
+            minPreloadSegments={1}
+            initialBandwidthEstimateKbps={10000}
             minResolution={MinResolution.noLessThan1080p}
             maxResolution={MaxResolution.upTo2160p}
-            renditionOrder={RenditionOrder.DESCENDING}
             nohotkeys
             proudlyDisplayMuxBadge={false}
             videoTitle="sweetiepie landing"
             className={`${styles.video} ${styles.muxPlayer}`}
+            onLoadedMetadata={(event) =>
+              tryPlay(event.currentTarget as MuxPlayerElement)
+            }
             onCanPlay={(event) => tryPlay(event.currentTarget as MuxPlayerElement)}
             onPlaying={(event) => tryPlay(event.currentTarget as MuxPlayerElement)}
             onTimeUpdate={handleMuxTimeUpdate}
