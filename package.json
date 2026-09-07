@@ -16,7 +16,6 @@
     "@sanity/image-url": "latest",
     "@sanity/orderable-document-list": "^1.5.1",
     "framer-motion": "^12.38.0",
-    "hls.js": "^1.7.2",
     "next": "latest",
     "next-sanity": "latest",
     "react": "latest",

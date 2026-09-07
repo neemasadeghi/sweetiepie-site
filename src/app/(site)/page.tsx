@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { getProjects, getLandingVideo } from "@/lib/sanity-queries";
 import { metadataForHome } from "@/lib/link-preview-metadata";
 import { HomeLanding } from "@/components/HomeLanding";
-import { LandingHeroEarlyVideo } from "@/components/LandingHeroEarlyVideo";
-import { LandingHeroVideoControls } from "@/components/LandingHeroVideoControls";
 import { LandingVideoPreload } from "@/components/LandingVideoPreload";
 
 export const dynamic = "force-dynamic";
@@ -23,19 +21,10 @@ export default async function HomePage() {
     getLandingVideo(),
   ]);
 
-  const video = (
-    <LandingHeroVideoControls>
-      <LandingHeroEarlyVideo
-        landscapePlaybackId={landing.landscapePlaybackId}
-        portraitPlaybackId={landing.portraitPlaybackId}
-      />
-    </LandingHeroVideoControls>
-  );
-
   return (
     <>
       <LandingVideoPreload landing={landing} />
-      <HomeLanding projects={projects ?? []} video={video} />
+      <HomeLanding projects={projects ?? []} landing={landing} />
     </>
   );
 }

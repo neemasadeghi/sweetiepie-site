@@ -29,11 +29,6 @@
   overflow: hidden;
 }
 
-.videoControls {
-  position: absolute;
-  inset: 0;
-}
-
 .poster {
   position: absolute;
   inset: 0;
@@ -43,52 +38,7 @@
   object-position: center;
   pointer-events: none;
   z-index: 2;
-  opacity: 1;
-  visibility: visible;
   transform: translateZ(0);
-  will-change: opacity;
-  transition: opacity var(--landing-crossfade-ms, 120ms) ease-out;
-}
-
-.posterHidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.posterLandscape {
-  display: block;
-}
-
-.posterPortrait {
-  display: none;
-}
-
-@media (orientation: portrait) {
-  .posterLandscape {
-    display: none;
-  }
-
-  .posterPortrait {
-    display: block;
-  }
-}
-
-.videoLandscape {
-  display: block;
-}
-
-.videoPortrait {
-  display: none;
-}
-
-@media (orientation: portrait) {
-  .videoLandscape {
-    display: none;
-  }
-
-  .videoPortrait {
-    display: block;
-  }
 }
 
 .video {
@@ -102,13 +52,11 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   z-index: 1;
-  opacity: 0;
-  will-change: opacity;
-  transition: opacity var(--landing-crossfade-ms, 120ms) ease-out;
 }
 
-.videoReady {
-  opacity: 1;
+.muxPlayer {
+  --controls: none;
+  --media-object-fit: cover;
 }
 
 .scrim {
