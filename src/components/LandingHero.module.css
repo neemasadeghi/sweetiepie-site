@@ -39,6 +39,12 @@
   pointer-events: none;
   transform: translateZ(0);
   backface-visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.55s ease;
+}
+
+.videoReady {
+  opacity: 1;
 }
 
 .muxPlayer {
@@ -76,8 +82,8 @@
   line-height: 0.95;
   letter-spacing: 0.02em;
   text-transform: lowercase;
-  color: #fff;
-  text-shadow: 0 2px 32px rgba(0, 0, 0, 0.45);
+  color: var(--bg-primary);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, 0.55), 0 0 1px rgba(0, 0, 0, 0.35);
   user-select: none;
 }
 
@@ -87,7 +93,7 @@
   font-weight: 400;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 216, 239, 0.78);
   animation: hintPulse 2.4s ease-in-out infinite;
 }
 
@@ -103,6 +109,6 @@
 
 @media (hover: hover) {
   .hero:not(.heroDismissed):hover .hint {
-    color: rgba(255, 255, 255, 0.95);
+    color: var(--bg-primary);
   }
 }
