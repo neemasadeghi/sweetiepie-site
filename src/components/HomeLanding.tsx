@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from "react";
+import { useCallback, useLayoutEffect } from "react";
 import type { Project } from "./ProjectCard";
 import { ProjectList } from "./ProjectList";
 import { LandingHero } from "./LandingHero";
@@ -25,21 +25,10 @@ export function HomeLanding({
     notifyLandingRevealed();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (revealed) {
-      document.body.style.overflow = "";
-      delete document.documentElement.dataset.page;
       window.scrollTo(0, 0);
-      return;
     }
-
-    document.body.style.overflow = "hidden";
-    document.documentElement.dataset.page = "landing";
-
-    return () => {
-      document.body.style.overflow = "";
-      delete document.documentElement.dataset.page;
-    };
   }, [revealed]);
 
   return (

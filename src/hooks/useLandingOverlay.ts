@@ -1,12 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 
 export const LANDING_REVEALED_EVENT = "landing:revealed";
 const LANDING_DISMISSED_KEY = "landing-dismissed";
 
 let initialPathHandled = false;
+let overlayActive = false;
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(cb: () => void) {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+
+function getSnapshot() {
+  return overlayActive;
+}
 
 function shouldShowLandingOnFreshLoad(): boolean {
   if (typeof window === "undefined") return true;
@@ -53,31 +68,77 @@ function shouldShowLandingNow(pathname: string): boolean {
   return sessionStorage.getItem(LANDING_DISMISSED_KEY) !== "1";
 }
 
+function syncDocumentLandingState(active: boolean) {
+  if (typeof document === "undefined") return;
+
+  if (active) {
+    document.documentElement.dataset.page = "landing";
+    document.body.style.overflow = "hidden";
+    return;
+  }
+
+  if (document.documentElement.dataset.page === "landing") {
+    delete document.documentElement.dataset.page;
+  }
+  document.body.style.overflow = "";
+}
+
+function syncOverlay(pathname: string) {
+  const next = shouldShowLandingNow(pathname);
+  syncDocumentLandingState(next);
+
+  if (next !== overlayActive) {
+    overlayActive = next;
+    emit();
+  }
+}
+
 /** True while the full-screen landing overlay is visible on `/`. */
 export function useLandingOverlayActive(): boolean {
   const pathname = usePathname();
-  const [overlayActive, setOverlayActive] = useState(() =>
-    shouldShowLandingNow(pathname)
+
+  if (typeof window !== "undefined") {
+    syncOverlay(pathname);
+  }
+
+  const active = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    () => pathname === "/"
   );
 
+  useLayoutEffect(() => {
+    syncOverlay(pathname);
+  }, [pathname]);
+
   useEffect(() => {
-    setOverlayActive(shouldShowLandingNow(pathname));
+    const onRevealed = () => syncOverlay(pathname);
 
-    if (pathname !== "/") return;
-
-    const onRevealed = () => {
-      markLandingDismissed();
-      setOverlayActive(false);
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        syncOverlay(pathname);
+      }
     };
 
     window.addEventListener(LANDING_REVEALED_EVENT, onRevealed);
-    return () => window.removeEventListener(LANDING_REVEALED_EVENT, onRevealed);
+    window.addEventListener("pageshow", onPageShow);
+    return () => {
+      window.removeEventListener(LANDING_REVEALED_EVENT, onRevealed);
+      window.removeEventListener("pageshow", onPageShow);
+    };
   }, [pathname]);
 
-  return overlayActive;
+  return active;
 }
 
 export function notifyLandingRevealed() {
   markLandingDismissed();
+  syncDocumentLandingState(false);
+
+  if (overlayActive) {
+    overlayActive = false;
+    emit();
+  }
+
   window.dispatchEvent(new Event(LANDING_REVEALED_EVENT));
 }
