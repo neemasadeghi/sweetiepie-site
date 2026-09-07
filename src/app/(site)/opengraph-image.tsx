@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
-import { getLandingVideo, getProjects } from "@/lib/sanity-queries";
-import { getLandingPosterUrl } from "@/lib/landing-video";
-import { getProjectShareImage } from "@/lib/share-image";
+import { getProjects } from "@/lib/sanity-queries";
+import { getHomeShareImage, getProjectShareImage } from "@/lib/share-image";
 import { SITE_HEADLINE, SITE_TAGLINE } from "@/lib/site-brand";
 
 export const alt = SITE_HEADLINE;
@@ -9,15 +8,9 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
-  const [landing, projects] = await Promise.all([
-    getLandingVideo(),
-    getProjects(),
-  ]);
-
-  const playbackId = landing.landscapePlaybackId.trim();
+  const projects = await getProjects();
   const backgroundUrl =
-    (playbackId &&
-      getLandingPosterUrl(playbackId, { width: 1200, height: 630 })) ||
+    getHomeShareImage(projects) ||
     (projects?.[0] ? getProjectShareImage(projects[0]) : null);
 
   return new ImageResponse(
