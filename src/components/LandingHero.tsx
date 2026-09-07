@@ -171,7 +171,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
         <h1 className={styles.title}>sweetiepie</h1>
-        <span className={styles.hint}>Tap or click to enter</span>
+        <span className={styles.hint}>Click to enter</span>
       </div>
     </button>
   );

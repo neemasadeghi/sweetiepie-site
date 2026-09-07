@@ -67,6 +67,7 @@ html[data-header-retracted="true"] .site-main {
 
 html {
   scroll-behavior: smooth;
+  font-size: 93.75%;
   scrollbar-width: thin;
   scrollbar-color: #d4a0be transparent;
 }
