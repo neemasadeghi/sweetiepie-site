@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore } from "react";
-import MuxPlayer from "@mux/mux-player-react";
+import MuxPlayer, {
+  MaxResolution,
+  MinResolution,
+  RenditionOrder,
+} from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
 import { LANDING_VIDEO_FILES } from "@/lib/landing-video";
@@ -73,6 +77,9 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           autoPlay
           playsInline
           preload="auto"
+          minResolution={MinResolution.noLessThan1080p}
+          maxResolution={MaxResolution.upTo2160p}
+          renditionOrder={RenditionOrder.DESCENDING}
           nohotkeys
           proudlyDisplayMuxBadge={false}
           videoTitle="sweetiepie landing"
