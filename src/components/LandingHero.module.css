@@ -29,11 +29,6 @@
   overflow: hidden;
 }
 
-.videoControls {
-  position: absolute;
-  inset: 0;
-}
-
 .poster {
   position: absolute;
   inset: 0;
@@ -44,47 +39,6 @@
   pointer-events: none;
   z-index: 2;
   transform: translateZ(0);
-}
-
-.posterHidden {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.posterLandscape {
-  display: block;
-}
-
-.posterPortrait {
-  display: none;
-}
-
-@media (orientation: portrait) {
-  .posterLandscape {
-    display: none;
-  }
-
-  .posterPortrait {
-    display: block;
-  }
-}
-
-.videoLandscape {
-  display: block;
-}
-
-.videoPortrait {
-  display: none;
-}
-
-@media (orientation: portrait) {
-  .videoLandscape {
-    display: none;
-  }
-
-  .videoPortrait {
-    display: block;
-  }
 }
 
 .video {
@@ -98,6 +52,11 @@
   transform: translateZ(0);
   backface-visibility: hidden;
   z-index: 1;
+}
+
+.muxPlayer {
+  --controls: none;
+  --media-object-fit: cover;
 }
 
 .scrim {

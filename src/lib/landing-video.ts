@@ -14,7 +14,7 @@ export const LANDING_VIDEO_FILES = {
   portrait: "/landing/hero-portrait.mp4",
 } as const;
 
-/** Full-quality progressive MP4 (faststart) — primary landing playback. */
+/** Progressive MP4 fallback when HLS is unavailable (full quality, faststart). */
 export function getLandingMp4Url(playbackId: string): string {
   const id = playbackId.trim();
   if (!id) return "";
