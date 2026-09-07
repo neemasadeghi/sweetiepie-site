@@ -119,50 +119,95 @@ export default async function ProjectPage({
           )}
         </div>
         <div className={styles.meta}>
-          {project.director && (
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Director</span>
-              <span className={styles.metaValue}>{project.director}</span>
+          <div className={styles.metaCreditsRow}>
+            <div className={styles.metaCredits}>
+              {project.director ? (
+                <div className={styles.metaCol}>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaLabel}>Director</span>
+                    <span className={styles.metaValue}>{project.director}</span>
+                  </div>
+                </div>
+              ) : null}
+              {project.production ? (
+                <div className={styles.metaCol}>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaLabel}>Production</span>
+                    <span className={styles.metaValue}>{project.production}</span>
+                  </div>
+                </div>
+              ) : null}
+              {project.cinematographer ? (
+                <div className={styles.metaCol}>
+                  <div className={styles.metaItem}>
+                    <span className={styles.metaLabel}>Cinematographer</span>
+                    <span className={styles.metaValue}>
+                      {project.cinematographer}
+                    </span>
+                  </div>
+                </div>
+              ) : null}
             </div>
-          )}
-          {project.cinematographer && (
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Cinematographer</span>
-              <span className={styles.metaValue}>{project.cinematographer}</span>
-            </div>
-          )}
-          {project.production && (
-            <div className={styles.metaItem}>
-              <span className={styles.metaLabel}>Production</span>
-              <span className={styles.metaValue}>{project.production}</span>
-            </div>
-          )}
-          {project.imdbUrl && (
-            <a href={project.imdbUrl} target="_blank" rel="noopener noreferrer" className={styles.imdbLink} aria-label="IMDb">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M2 4v16h3.5V4H2zm4.5 0v16h3l.3-4.3.4-3.3.3 3.3.3 4.3h3V4h-3l-.5 7.5L9.8 4H6.5zM14 4v16h3.5v-5.7l.8 0c1.3 0 2.3-.4 3-1.1.7-.8 1-1.8 1-3.1V9.2c0-1.5-.3-2.7-1-3.5-.7-.8-1.7-1.3-3-1.5L14 4zm3.5 3h.3c.4 0 .6.1.8.4.2.3.3.7.3 1.3v2.1c0 .6-.1 1-.3 1.2-.2.3-.5.4-.8.4h-.3V7z"/></svg>
-            </a>
-          )}
-          {project.watchUrl && project.watchPlatform && (
-            <a href={project.watchUrl} target="_blank" rel="noopener noreferrer" className={styles.watchLink}>
-              Watch on {project.watchPlatform}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
-              </svg>
-            </a>
-          )}
+            {(project.imdbUrl || (project.watchUrl && project.watchPlatform)) && (
+              <div className={styles.metaActions}>
+                {project.imdbUrl && (
+                  <a
+                    href={project.imdbUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.imdbLink}
+                    aria-label="IMDb"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      width="24"
+                      height="24"
+                    >
+                      <path d="M2 4v16h3.5V4H2zm4.5 0v16h3l.3-4.3.4-3.3.3 3.3.3 4.3h3V4h-3l-.5 7.5L9.8 4H6.5zM14 4v16h3.5v-5.7l.8 0c1.3 0 2.3-.4 3-1.1.7-.8 1-1.8 1-3.1V9.2c0-1.5-.3-2.7-1-3.5-.7-.8-1.7-1.3-3-1.5L14 4zm3.5 3h.3c.4 0 .6.1.8.4.2.3.3.7.3 1.3v2.1c0 .6-.1 1-.3 1.2-.2.3-.5.4-.8.4h-.3V7z" />
+                    </svg>
+                  </a>
+                )}
+                {project.watchUrl && project.watchPlatform && (
+                  <a
+                    href={project.watchUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.watchLink}
+                  >
+                    Watch on {project.watchPlatform}
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {vimeo && (
-        <div>
+        <div className={styles.videoStage}>
           {project.vimeoTitle && (
             <h2 className={styles.videoTitle}>{project.vimeoTitle}</h2>
           )}
-          <div className={styles.playerWrap}>
+          <div
+            className={styles.playerWrap}
+            style={{ aspectRatio: `${vimeo.width} / ${vimeo.height}` }}
+          >
             <iframe
               src={vimeo.embedUrl}
               className={styles.player}
-              style={{ aspectRatio: `${vimeo.width} / ${vimeo.height}` }}
               allow="autoplay; fullscreen; picture-in-picture"
               allowFullScreen
             />
@@ -176,11 +221,13 @@ export default async function ProjectPage({
             <div key={i} className={styles.additionalVideo}>
               {v.title && <h2 className={styles.additionalTitle}>{v.title}</h2>}
               {v.embed && (
-                <div className={styles.playerWrap}>
+                <div
+                  className={styles.playerWrap}
+                  style={{ aspectRatio: `${v.embed.width} / ${v.embed.height}` }}
+                >
                   <iframe
                     src={v.embed.embedUrl}
                     className={styles.player}
-                    style={{ aspectRatio: `${v.embed.width} / ${v.embed.height}` }}
                     allow="autoplay; fullscreen; picture-in-picture"
                     allowFullScreen
                   />
