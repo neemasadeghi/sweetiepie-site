@@ -19,7 +19,6 @@ export function LandingHero({ revealed, onReveal, video }: LandingHeroProps) {
       tabIndex={revealed ? -1 : 0}
       disabled={revealed}
     >
-      <div className={styles.fallback} aria-hidden />
       <div className={styles.media}>{video}</div>
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>

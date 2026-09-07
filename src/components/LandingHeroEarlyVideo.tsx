@@ -1,5 +1,6 @@
 import {
   getLandingMp4Url,
+  getLandingPosterUrl,
   LANDING_VIDEO_FILES,
 } from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
@@ -24,6 +25,13 @@ export function LandingHeroEarlyVideo({
       : landscapeId
         ? ""
         : LANDING_VIDEO_FILES.portrait;
+  const landscapePoster = landscapeId
+    ? getLandingPosterUrl(landscapeId)
+    : "";
+  const portraitPoster =
+    portraitId && portraitId !== landscapeId
+      ? getLandingPosterUrl(portraitId, { portrait: true })
+      : "";
 
   const videoProps = {
     autoPlay: true,
@@ -37,28 +45,66 @@ export function LandingHeroEarlyVideo({
 
   if (!landscapeSrc && !portraitSrc) return null;
 
+  const posterProps = {
+    alt: "",
+    "aria-hidden": true,
+    fetchPriority: "high" as const,
+    decoding: "async" as const,
+    "data-landing-poster": true,
+  };
+
   if (!portraitSrc || landscapeSrc === portraitSrc) {
+    const poster = landscapePoster || portraitPoster;
     return (
-      <video
-        className={styles.video}
-        src={landscapeSrc || portraitSrc}
-        crossOrigin={landscapeId || portraitId ? "anonymous" : undefined}
-        {...videoProps}
-      />
+      <>
+        {poster ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={poster}
+            className={styles.poster}
+            {...posterProps}
+          />
+        ) : null}
+        <video
+          className={styles.video}
+          src={landscapeSrc || portraitSrc}
+          poster={poster || undefined}
+          crossOrigin={landscapeId || portraitId ? "anonymous" : undefined}
+          {...videoProps}
+        />
+      </>
     );
   }
 
   return (
     <>
+      {landscapePoster ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={landscapePoster}
+          className={`${styles.poster} ${styles.posterLandscape}`}
+          {...posterProps}
+        />
+      ) : null}
+      {portraitPoster ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={portraitPoster}
+          className={`${styles.poster} ${styles.posterPortrait}`}
+          {...posterProps}
+        />
+      ) : null}
       <video
         className={`${styles.video} ${styles.videoLandscape}`}
         src={landscapeSrc}
+        poster={landscapePoster || undefined}
         crossOrigin={landscapeId ? "anonymous" : undefined}
         {...videoProps}
       />
       <video
         className={`${styles.video} ${styles.videoPortrait}`}
         src={portraitSrc}
+        poster={portraitPoster || undefined}
         crossOrigin={portraitId ? "anonymous" : undefined}
         {...videoProps}
       />
