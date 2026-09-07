@@ -1,12 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import type { Project } from "./ProjectCard";
 import { ProjectList } from "./ProjectList";
 import { LandingHero } from "./LandingHero";
 import styles from "./HomeLanding.module.css";
 import type { LandingVideo } from "@/lib/landing-video";
-import { notifyLandingRevealed } from "@/hooks/useLandingOverlay";
+import {
+  notifyLandingRevealed,
+  useLandingOverlayActive,
+} from "@/hooks/useLandingOverlay";
 
 export function HomeLanding({
   projects,
@@ -15,10 +18,10 @@ export function HomeLanding({
   projects: Project[];
   landing: LandingVideo;
 }) {
-  const [revealed, setRevealed] = useState(false);
+  const landingOverlayActive = useLandingOverlayActive();
+  const revealed = !landingOverlayActive;
 
   const reveal = useCallback(() => {
-    setRevealed(true);
     notifyLandingRevealed();
   }, []);
 
