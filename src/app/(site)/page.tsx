@@ -4,8 +4,10 @@ import { HomeLanding } from "@/components/HomeLanding";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "sweetiepie",
-  description: "sweetiepie — Director",
+  title: {
+    absolute: "sweetiepie · director duo",
+  },
+  description: "sweetiepie — Director duo",
 };
 
 export default async function HomePage() {

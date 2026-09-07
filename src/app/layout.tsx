@@ -28,22 +28,22 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "sweetiepie",
+    default: "sweetiepie · director duo",
     template: "%s · sweetiepie",
   },
-  description: "sweetiepie — Director. Music videos, commercials & documentary.",
+  description: "sweetiepie — Director duo. Music videos, commercials & documentary.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: siteUrl,
     siteName: "sweetiepie",
-    title: "sweetiepie",
-    description: "Director — Music videos, commercials & documentary.",
+    title: "sweetiepie · director duo",
+    description: "Director duo — Music videos, commercials & documentary.",
   },
   twitter: {
     card: "summary_large_image",
-    title: "sweetiepie",
-    description: "Director — Music videos, commercials & documentary.",
+    title: "sweetiepie · director duo",
+    description: "Director duo — Music videos, commercials & documentary.",
   },
 };
 
