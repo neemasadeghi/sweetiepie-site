@@ -1,10 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import MuxPlayer, { MaxResolution } from "@mux/mux-player-react";
-import type MuxPlayerElement from "@mux/mux-player";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import type { LandingVideo } from "@/lib/landing-video";
-import { LANDING_VIDEO_FILES, getLandingPosterUrl } from "@/lib/landing-video";
+import {
+  LANDING_VIDEO_FILES,
+  getLandingMp4Url,
+  getLandingPosterUrl,
+} from "@/lib/landing-video";
 import styles from "./LandingHero.module.css";
 
 const PORTRAIT_MQ = "(orientation: portrait)";
@@ -27,7 +29,6 @@ type LandingHeroProps = {
 
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const muxRef = useRef<MuxPlayerElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
   const isPortrait = useSyncExternalStore(
     subscribeOrientation,
@@ -38,32 +39,29 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const muxId = (
     isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
   ).trim();
+  const muxMp4 = muxId ? getLandingMp4Url(muxId) : "";
   const fileSrc = isPortrait
     ? LANDING_VIDEO_FILES.portrait
     : LANDING_VIDEO_FILES.landscape;
-  const useMux = Boolean(muxId);
-  const posterUrl = useMux ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
+  const videoSrc = muxMp4 || fileSrc;
+  const posterUrl = muxId ? getLandingPosterUrl(muxId, { portrait: isPortrait }) : "";
 
   useEffect(() => {
     setVideoReady(false);
-  }, [useMux, muxId, fileSrc]);
+  }, [videoSrc]);
 
-  useEffect(() => {
-    if (useMux) {
-      muxRef.current?.play().catch(() => {});
-      return;
-    }
+  useLayoutEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video || !videoSrc) return;
     video.load();
     video.play().catch(() => {});
-  }, [useMux, muxId, fileSrc]);
+  }, [videoSrc]);
 
   const markVideoReady = useCallback(() => {
     setVideoReady(true);
   }, []);
 
-  const smoothLoop = useCallback((media: MuxPlayerElement | HTMLVideoElement) => {
+  const smoothLoop = useCallback((media: HTMLVideoElement) => {
     const { duration, currentTime } = media;
     if (!duration || !Number.isFinite(duration)) return;
     if (duration - currentTime <= 0.04) {
@@ -74,14 +72,6 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const handleVideoTimeUpdate = useCallback(
     (event: React.SyntheticEvent<HTMLVideoElement>) => {
       smoothLoop(event.currentTarget);
-    },
-    [smoothLoop]
-  );
-
-  const handleMuxTimeUpdate = useCallback(
-    (event: CustomEvent<{ composed: true; detail: unknown }>) => {
-      const media = event.target as MuxPlayerElement | null;
-      if (media) smoothLoop(media);
     },
     [smoothLoop]
   );
@@ -109,43 +99,22 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           decoding="async"
         />
       ) : null}
-      {useMux ? (
-        <MuxPlayer
-          ref={muxRef}
-          playbackId={muxId}
-          streamType="on-demand"
-          muted
-          loop
-          autoPlay
-          playsInline
-          preload="auto"
-          poster=""
-          placeholder=""
-          maxResolution={MaxResolution.upTo2160p}
-          nohotkeys
-          proudlyDisplayMuxBadge={false}
-          videoTitle="sweetiepie landing"
-          className={`${videoClassName} ${styles.muxPlayer}`}
-          onLoadedData={markVideoReady}
-          onPlaying={markVideoReady}
-          onTimeUpdate={handleMuxTimeUpdate}
-        />
-      ) : (
-        <video
-          ref={videoRef}
-          className={videoClassName}
-          src={fileSrc}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          tabIndex={-1}
-          onLoadedData={markVideoReady}
-          onPlaying={markVideoReady}
-          onTimeUpdate={handleVideoTimeUpdate}
-        />
-      )}
+      <video
+        ref={videoRef}
+        key={videoSrc}
+        className={videoClassName}
+        src={videoSrc}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        tabIndex={-1}
+        onLoadedData={markVideoReady}
+        onCanPlay={markVideoReady}
+        onPlaying={markVideoReady}
+        onTimeUpdate={handleVideoTimeUpdate}
+      />
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
         <h1 className={styles.title}>sweetiepie</h1>

@@ -66,11 +66,6 @@
   opacity: 1;
 }
 
-.muxPlayer {
-  --controls: none;
-  --media-object-fit: cover;
-}
-
 .scrim {
   position: absolute;
   inset: 0;

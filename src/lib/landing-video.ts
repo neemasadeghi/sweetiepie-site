@@ -14,6 +14,13 @@ export const LANDING_VIDEO_FILES = {
   portrait: "/landing/hero-portrait.mp4",
 } as const;
 
+/** Progressive high-quality MP4 — faster start than HLS adaptive for short loops. */
+export function getLandingMp4Url(playbackId: string): string {
+  const id = playbackId.trim();
+  if (!id) return "";
+  return `https://stream.mux.com/${id}/high.mp4`;
+}
+
 /** First-frame still from Mux — shown instantly while the stream buffers. */
 export function getLandingPosterUrl(
   playbackId: string,
@@ -22,7 +29,7 @@ export function getLandingPosterUrl(
   const id = playbackId.trim();
   if (!id) return "";
   const portrait = options.portrait ?? false;
-  const width = options.width ?? (portrait ? 1080 : 1280);
-  const height = options.height ?? (portrait ? 1920 : 720);
+  const width = options.width ?? (portrait ? 1080 : 1920);
+  const height = options.height ?? (portrait ? 1920 : 1080);
   return `https://image.mux.com/${id}/thumbnail.jpg?width=${width}&height=${height}&fit_mode=smartcrop&time=0`;
 }
