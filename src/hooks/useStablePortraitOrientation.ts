@@ -8,7 +8,9 @@ function readPortrait(): boolean {
 
 /** Portrait vs landscape — only updates on real device rotation, not Safari chrome resize. */
 export function useStablePortraitOrientation(): boolean {
-  const [isPortrait, setIsPortrait] = useState(false);
+  const [isPortrait, setIsPortrait] = useState(() =>
+    typeof window !== "undefined" ? readPortrait() : false
+  );
 
   useLayoutEffect(() => {
     setIsPortrait(readPortrait());

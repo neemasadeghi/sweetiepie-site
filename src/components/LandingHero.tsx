@@ -1,10 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import MuxPlayer, { MaxResolution, MinResolution } from "@mux/mux-player-react";
-import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
 import {
+  getLandingMp4Url,
   getLandingPosterUrl,
   LANDING_VIDEO_FILES,
 } from "@/lib/landing-video";
@@ -17,17 +16,26 @@ type LandingHeroProps = {
   onReveal: () => void;
 };
 
+function getVideoElement(node: EventTarget | null): HTMLVideoElement | null {
+  if (!node || !(node instanceof HTMLVideoElement)) return null;
+  return node;
+}
+
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
-  const playerRef = useRef<MuxPlayerElement | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const posterHiddenRef = useRef(false);
+  const playStartedRef = useRef(false);
   const [showPoster, setShowPoster] = useState(true);
   const isPortrait = useStablePortraitOrientation();
 
   const muxId = (
     isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
   ).trim();
-  const fileSrc = isPortrait
-    ? LANDING_VIDEO_FILES.portrait
-    : LANDING_VIDEO_FILES.landscape;
+  const videoSrc = muxId
+    ? getLandingMp4Url(muxId)
+    : isPortrait
+      ? LANDING_VIDEO_FILES.portrait
+      : LANDING_VIDEO_FILES.landscape;
   const posterUrl = muxId
     ? getLandingPosterUrl(muxId, {
         portrait: isPortrait,
@@ -36,62 +44,49 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       })
     : "";
 
-  const tryPlay = useCallback((media: HTMLVideoElement | MuxPlayerElement) => {
-    if (media.paused) {
-      media.play().catch(() => {});
-    }
+  const hidePoster = useCallback(() => {
+    if (posterHiddenRef.current) return;
+    posterHiddenRef.current = true;
+    setShowPoster(false);
   }, []);
 
-  const hidePosterWhenPlaying = useCallback(
-    (media: HTMLVideoElement | MuxPlayerElement) => {
-      if (
-        showPoster &&
-        !media.paused &&
-        media.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA &&
-        media.currentTime > 0.08
-      ) {
-        setShowPoster(false);
+  const maybeHidePoster = useCallback(
+    (video: HTMLVideoElement) => {
+      if (posterHiddenRef.current || video.paused || video.currentTime > 0.12) {
+        return;
       }
+
+      if ("requestVideoFrameCallback" in video) {
+        video.requestVideoFrameCallback(() => {
+          if (
+            !posterHiddenRef.current &&
+            !video.paused &&
+            video.currentTime < 0.12
+          ) {
+            hidePoster();
+          }
+        });
+        return;
+      }
+
+      hidePoster();
     },
-    [showPoster]
+    [hidePoster]
   );
 
-  const handleMuxTimeUpdate = useCallback(
-    (event: CustomEvent<{ composed: true; detail: unknown }>) => {
-      const media = event.target as MuxPlayerElement | null;
-      if (media) hidePosterWhenPlaying(media);
-    },
-    [hidePosterWhenPlaying]
-  );
-
-  const handleNativeTimeUpdate = useCallback(
-    (event: React.SyntheticEvent<HTMLVideoElement>) => {
-      hidePosterWhenPlaying(event.currentTarget);
-    },
-    [hidePosterWhenPlaying]
-  );
+  const startPlayback = useCallback((video: HTMLVideoElement) => {
+    if (playStartedRef.current) return;
+    playStartedRef.current = true;
+    video.play().catch(() => {
+      playStartedRef.current = false;
+    });
+  }, []);
 
   useEffect(() => {
-    const retryTimer = window.setInterval(() => {
-      const mux = playerRef.current;
-      const native = document.querySelector(
-        "[data-landing-native-video]"
-      ) as HTMLVideoElement | null;
-      if (mux) tryPlay(mux);
-      if (native) tryPlay(native);
-    }, 80);
-    const stopTimer = window.setTimeout(() => {
-      window.clearInterval(retryTimer);
-    }, 10000);
-    return () => {
-      window.clearInterval(retryTimer);
-      window.clearTimeout(stopTimer);
-    };
-  }, [muxId, fileSrc, tryPlay]);
-
-  useEffect(() => {
+    posterHiddenRef.current = false;
+    playStartedRef.current = false;
     setShowPoster(true);
-  }, [muxId]);
+  }, [videoSrc]);
 
   return (
     <button
@@ -117,52 +112,40 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
             decoding="sync"
           />
         ) : null}
-        {muxId ? (
-          <MuxPlayer
-            ref={playerRef}
-            key={muxId}
-            playbackId={muxId}
-            streamType="on-demand"
-            muted
-            loop
-            autoPlay
-            playsInline
-            preload="auto"
-            poster=""
-            placeholder=""
-            startTime={0}
-            minPreloadSegments={1}
-            initialBandwidthEstimateKbps={10000}
-            minResolution={MinResolution.noLessThan1080p}
-            maxResolution={MaxResolution.upTo2160p}
-            nohotkeys
-            proudlyDisplayMuxBadge={false}
-            videoTitle="sweetiepie landing"
-            className={`${styles.video} ${styles.muxPlayer} ${showPoster ? styles.videoHidden : styles.videoVisible}`}
-            onLoadedMetadata={(event) =>
-              tryPlay(event.currentTarget as MuxPlayerElement)
+        <video
+          ref={videoRef}
+          key={videoSrc}
+          data-landing-native-video
+          className={styles.video}
+          src={videoSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          tabIndex={-1}
+          onLoadedMetadata={(event) => {
+            const video = getVideoElement(event.currentTarget);
+            if (!video) return;
+            try {
+              video.currentTime = 0;
+            } catch {
+              /* ignore seek errors before data is ready */
             }
-            onCanPlay={(event) => tryPlay(event.currentTarget as MuxPlayerElement)}
-            onPlaying={(event) => tryPlay(event.currentTarget as MuxPlayerElement)}
-            onTimeUpdate={handleMuxTimeUpdate}
-          />
-        ) : (
-          <video
-            key={fileSrc}
-            data-landing-native-video
-            className={`${styles.video} ${showPoster ? styles.videoHidden : styles.videoVisible}`}
-            src={fileSrc}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            tabIndex={-1}
-            onCanPlay={(event) => tryPlay(event.currentTarget)}
-            onPlaying={(event) => tryPlay(event.currentTarget)}
-            onTimeUpdate={handleNativeTimeUpdate}
-          />
-        )}
+          }}
+          onCanPlayThrough={(event) => {
+            const video = getVideoElement(event.currentTarget);
+            if (video) startPlayback(video);
+          }}
+          onPlaying={(event) => {
+            const video = getVideoElement(event.currentTarget);
+            if (video) maybeHidePoster(video);
+          }}
+          onTimeUpdate={(event) => {
+            const video = getVideoElement(event.currentTarget);
+            if (video) maybeHidePoster(video);
+          }}
+        />
       </div>
       <div className={styles.scrim} aria-hidden />
       <div className={styles.content}>
