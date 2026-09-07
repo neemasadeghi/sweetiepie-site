@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import MuxPlayer, { MaxResolution, MinResolution } from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
@@ -8,19 +8,8 @@ import {
   getLandingPosterUrl,
   LANDING_VIDEO_FILES,
 } from "@/lib/landing-video";
+import { useStablePortraitOrientation } from "@/hooks/useStablePortraitOrientation";
 import styles from "./LandingHero.module.css";
-
-const PORTRAIT_MQ = "(orientation: portrait)";
-
-function subscribeOrientation(cb: () => void) {
-  const mq = window.matchMedia(PORTRAIT_MQ);
-  mq.addEventListener("change", cb);
-  return () => mq.removeEventListener("change", cb);
-}
-
-function getPortraitSnapshot() {
-  return window.matchMedia(PORTRAIT_MQ).matches;
-}
 
 type LandingHeroProps = {
   landing: LandingVideo;
@@ -31,11 +20,7 @@ type LandingHeroProps = {
 export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
   const playerRef = useRef<MuxPlayerElement | null>(null);
   const [showPoster, setShowPoster] = useState(true);
-  const isPortrait = useSyncExternalStore(
-    subscribeOrientation,
-    getPortraitSnapshot,
-    () => false
-  );
+  const isPortrait = useStablePortraitOrientation();
 
   const muxId = (
     isPortrait ? landing.portraitPlaybackId : landing.landscapePlaybackId
@@ -51,10 +36,6 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       })
     : "";
 
-  useEffect(() => {
-    setShowPoster(true);
-  }, [muxId, fileSrc, isPortrait]);
-
   const tryPlay = useCallback((media: HTMLVideoElement | MuxPlayerElement) => {
     if (media.paused) {
       media.play().catch(() => {});
@@ -67,7 +48,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
         showPoster &&
         !media.paused &&
         media.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA &&
-        media.currentTime > 0.05
+        media.currentTime > 0.08
       ) {
         setShowPoster(false);
       }
@@ -108,9 +89,15 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     };
   }, [muxId, fileSrc, tryPlay]);
 
+  useEffect(() => {
+    setShowPoster(true);
+  }, [muxId]);
+
   return (
     <button
       type="button"
+      data-landing-hero=""
+      data-landing-active={revealed ? undefined : ""}
       className={`${styles.hero} ${revealed ? styles.heroDismissed : ""}`}
       onClick={revealed ? undefined : onReveal}
       aria-label={revealed ? undefined : "Enter sweetiepie"}
@@ -118,12 +105,13 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
       disabled={revealed}
     >
       <div className={styles.media}>
-        {posterUrl && showPoster ? (
+        {posterUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
+            key={posterUrl}
             src={posterUrl}
             alt=""
-            className={styles.poster}
+            className={`${styles.poster} ${showPoster ? "" : styles.posterHidden}`}
             aria-hidden
             fetchPriority="high"
             decoding="sync"
@@ -150,7 +138,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
             nohotkeys
             proudlyDisplayMuxBadge={false}
             videoTitle="sweetiepie landing"
-            className={`${styles.video} ${styles.muxPlayer}`}
+            className={`${styles.video} ${styles.muxPlayer} ${showPoster ? styles.videoHidden : styles.videoVisible}`}
             onLoadedMetadata={(event) =>
               tryPlay(event.currentTarget as MuxPlayerElement)
             }
@@ -162,7 +150,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           <video
             key={fileSrc}
             data-landing-native-video
-            className={styles.video}
+            className={`${styles.video} ${showPoster ? styles.videoHidden : styles.videoVisible}`}
             src={fileSrc}
             autoPlay
             muted
