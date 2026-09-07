@@ -30,6 +30,18 @@
   z-index: 0;
 }
 
+.mediaFill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vmax;
+  height: 100vmax;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
 .poster {
   position: absolute;
   inset: 0;
@@ -38,7 +50,6 @@
   object-fit: cover;
   object-position: center;
   pointer-events: none;
-  z-index: 1;
   transform: translateZ(0);
 }
 
@@ -55,11 +66,11 @@
   object-fit: cover;
   object-position: center;
   pointer-events: none;
+  display: block;
   transform: translateZ(0);
   backface-visibility: hidden;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 2;
 }
 
 .videoReady {
@@ -69,6 +80,14 @@
 .muxPlayer {
   --controls: none;
   --media-object-fit: cover;
+  --media-object-position: center;
+  --media-poster-image-background-size: cover;
+  --media-background-color: transparent;
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
 }
 
 .scrim {
@@ -81,7 +100,7 @@
 
 .content {
   position: relative;
-  z-index: 2;
+  z-index: 4;
   width: 100%;
   padding: 0 var(--page-padding);
   display: flex;

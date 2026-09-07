@@ -40,6 +40,13 @@ html[data-page="landing"] .site-main {
   min-height: 100dvh;
 }
 
+html[data-page="landing"] mux-player {
+  --media-object-fit: cover;
+  --media-object-position: center;
+  --media-poster-image-background-size: cover;
+  --media-background-color: transparent;
+}
+
 .site-main {
   padding-top: var(--header-offset);
   min-height: 100dvh;
