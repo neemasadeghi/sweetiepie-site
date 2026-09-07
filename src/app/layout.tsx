@@ -7,6 +7,7 @@ import {
   SITE_TAGLINE,
 } from "@/lib/site-brand";
 import { getSiteUrl } from "@/lib/site-url";
+import { MuxPreconnect } from "@/components/MuxPreconnect";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -60,7 +61,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${dmSans.variable} ${dmSerif.variable}`}>
-      <body>{children}</body>
+      <body>
+        <MuxPreconnect />
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,11 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import MuxPlayer, {
-  MaxResolution,
-  MinResolution,
-  RenditionOrder,
-} from "@mux/mux-player-react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
+import MuxPlayer, { MaxResolution } from "@mux/mux-player-react";
 import type MuxPlayerElement from "@mux/mux-player";
 import type { LandingVideo } from "@/lib/landing-video";
 import { LANDING_VIDEO_FILES, getLandingPosterUrl } from "@/lib/landing-video";
@@ -60,17 +56,25 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
     videoRef.current?.play().catch(() => {});
   }, [useMux]);
 
+  useLayoutEffect(() => {
+    tryPlay();
+  }, [useMux, muxId, fileSrc, tryPlay]);
+
   useEffect(() => {
     tryPlay();
-    const retryTimer = window.setInterval(tryPlay, 300);
+    const retryTimer = window.setInterval(tryPlay, 150);
     const stopTimer = window.setTimeout(() => {
       window.clearInterval(retryTimer);
-    }, 6000);
+    }, 8000);
     return () => {
       window.clearInterval(retryTimer);
       window.clearTimeout(stopTimer);
     };
   }, [useMux, muxId, fileSrc, tryPlay]);
+
+  const handleCanPlay = useCallback(() => {
+    tryPlay();
+  }, [tryPlay]);
 
   const handlePlaying = useCallback(() => {
     setIsPlaying(true);
@@ -134,14 +138,15 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           preload="auto"
           poster=""
           placeholder=""
-          minResolution={MinResolution.noLessThan1080p}
+          startTime={0.001}
+          minPreloadSegments={1}
+          initialBandwidthEstimateKbps={12000}
           maxResolution={MaxResolution.upTo2160p}
-          renditionOrder={RenditionOrder.DESCENDING}
-          initialBandwidthEstimateKbps={15000}
           nohotkeys
           proudlyDisplayMuxBadge={false}
           videoTitle="sweetiepie landing"
           className={`${videoClassName} ${styles.muxPlayer}`}
+          onCanPlay={handleCanPlay}
           onPlaying={handlePlaying}
           onTimeUpdate={handleMuxTimeUpdate}
         />
@@ -156,6 +161,7 @@ export function LandingHero({ landing, revealed, onReveal }: LandingHeroProps) {
           playsInline
           preload="auto"
           tabIndex={-1}
+          onCanPlay={handleCanPlay}
           onPlaying={handlePlaying}
           onTimeUpdate={handleVideoTimeUpdate}
         />

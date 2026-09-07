@@ -23,10 +23,6 @@ export function LandingVideoPreload({ landing }: { landing: LandingVideo }) {
 
   return (
     <>
-      <link rel="preconnect" href="https://image.mux.com" />
-      <link rel="preconnect" href="https://stream.mux.com" />
-      <link rel="dns-prefetch" href="https://image.mux.com" />
-      <link rel="dns-prefetch" href="https://stream.mux.com" />
       {landscapePoster ? (
         <link
           rel="preload"
