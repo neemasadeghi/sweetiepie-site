@@ -10,34 +10,6 @@
   will-change: transform;
 }
 
-.headerLanding {
-  background: transparent;
-}
-
-.headerLanding.menuOpen {
-  background: var(--bg-primary);
-}
-
-.headerLanding .logo,
-.headerLanding .link,
-.headerLanding .socialLink {
-  color: var(--bg-primary);
-}
-
-.headerLanding.menuOpen .logo,
-.headerLanding.menuOpen .link,
-.headerLanding.menuOpen .socialLink {
-  color: var(--text-primary);
-}
-
-.headerLanding .burgerLine {
-  background: var(--bg-primary);
-}
-
-.headerLanding.menuOpen .burgerLine {
-  background: var(--text-primary);
-}
-
 .retracted {
   transform: translateY(-100%);
   pointer-events: none;
@@ -60,7 +32,7 @@
   letter-spacing: 0.02em;
   text-decoration: none;
   color: var(--text-primary);
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition: transform 0.48s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.48s;
   flex-shrink: 0;
 }
 
@@ -198,7 +170,7 @@
   }
 
   .logoHidden {
-    opacity: 0;
+    transform: translateX(calc(-100% - 1rem));
     visibility: hidden;
     pointer-events: none;
   }
@@ -215,14 +187,10 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     padding: 0 0.15rem;
-    opacity: 0;
     visibility: hidden;
     pointer-events: none;
-    transform: translateX(12px);
-    transition:
-      opacity 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0.38s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: translateX(calc(100% + 2.5rem));
+    transition: transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.52s;
   }
 
   .links::-webkit-scrollbar {
@@ -230,7 +198,6 @@
   }
 
   .linksOpen {
-    opacity: 1;
     visibility: visible;
     pointer-events: auto;
     transform: translateX(0);

@@ -90,9 +90,13 @@ export function Navbar() {
 
   const isLanding = useLandingOverlayActive();
 
+  if (isLanding) {
+    return null;
+  }
+
   return (
     <header
-      className={`${styles.header} ${isLanding ? styles.headerLanding : ""} ${menuOpen ? styles.menuOpen : ""} ${retracted ? styles.retracted : ""}`}
+      className={`${styles.header} ${menuOpen ? styles.menuOpen : ""} ${retracted ? styles.retracted : ""}`}
     >
       <nav className={styles.nav}>
         <Link
