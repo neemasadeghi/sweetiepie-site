@@ -45,6 +45,10 @@ export function Navbar() {
   );
 
   useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
     if (menuOpen) {
       setRetracted(false);
       return;
@@ -52,8 +56,6 @@ export function Navbar() {
 
     const sync = () => {
       const y = window.scrollY;
-      // Hiding the bar on scroll also disables the burger (pointer-events: none). Keep the header
-      // visible on small screens so the menu is always reachable.
       setRetracted(y > 0.5 && !isMobileNav);
     };
 
@@ -62,15 +64,25 @@ export function Navbar() {
     return () => window.removeEventListener("scroll", sync);
   }, [menuOpen, isMobileNav]);
 
+  useEffect(() => {
+    if (!menuOpen || !isMobileNav) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [menuOpen, isMobileNav]);
+
   const toggleMenu = () => {
-    const next = !menuOpen;
-    setMenuOpen(next);
-    document.body.style.overflow = next ? "hidden" : "";
+    setMenuOpen((open) => !open);
   };
 
   const closeMenu = () => {
     setMenuOpen(false);
-    document.body.style.overflow = "";
   };
 
   const linkClass = (href: string) =>
@@ -80,30 +92,30 @@ export function Navbar() {
 
   return (
     <header
-      className={`${styles.header} ${isLanding ? styles.headerLanding : ""} ${retracted ? styles.retracted : ""}`}
+      className={`${styles.header} ${isLanding ? styles.headerLanding : ""} ${menuOpen ? styles.menuOpen : ""} ${retracted ? styles.retracted : ""}`}
     >
       <nav className={styles.nav}>
-        <Link href="/" className={styles.logo} onClick={closeMenu}>
+        <Link
+          href="/"
+          className={`${styles.logo} ${menuOpen ? styles.logoHidden : ""}`}
+          onClick={closeMenu}
+          tabIndex={menuOpen ? -1 : 0}
+          aria-hidden={menuOpen}
+        >
           sweetiepie
         </Link>
 
-        <button
-          className={`${styles.burger} ${menuOpen ? styles.burgerOpen : ""}`}
-          onClick={toggleMenu}
-          aria-label="Toggle menu"
-          aria-expanded={menuOpen}
+        <div
+          className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}
+          aria-hidden={!menuOpen && isMobileNav}
         >
-          <span />
-          <span />
-        </button>
-
-        <div className={`${styles.links} ${menuOpen ? styles.linksOpen : ""}`}>
           {WORK_NAV.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               className={linkClass(href)}
               onClick={closeMenu}
+              tabIndex={menuOpen || !isMobileNav ? 0 : -1}
             >
               {label}
             </Link>
@@ -115,6 +127,7 @@ export function Navbar() {
             className={styles.socialLink}
             aria-label="Instagram"
             onClick={closeMenu}
+            tabIndex={menuOpen || !isMobileNav ? 0 : -1}
           >
             <svg
               viewBox="0 0 24 24"
@@ -136,6 +149,17 @@ export function Navbar() {
             </svg>
           </a>
         </div>
+
+        <button
+          type="button"
+          className={`${styles.burger} ${menuOpen ? styles.burgerOpen : ""}`}
+          onClick={toggleMenu}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={menuOpen}
+        >
+          <span />
+          <span />
+        </button>
       </nav>
     </header>
   );
