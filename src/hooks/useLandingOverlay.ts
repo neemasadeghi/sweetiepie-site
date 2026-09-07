@@ -4,11 +4,22 @@ import { useEffect, useLayoutEffect, useSyncExternalStore } from "react";
 import { usePathname } from "next/navigation";
 
 export const LANDING_REVEALED_EVENT = "landing:revealed";
-const LANDING_DISMISSED_KEY = "landing-dismissed";
+const LANDING_DISMISSED_LOAD_KEY = "landing-dismissed-load-id";
 
+let pageLoadId: string | null = null;
 let initialPathHandled = false;
 let overlayActive = false;
 const listeners = new Set<() => void>();
+
+function getPageLoadId(): string {
+  if (!pageLoadId) {
+    pageLoadId =
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random()}`;
+  }
+  return pageLoadId;
+}
 
 function emit() {
   listeners.forEach((listener) => listener());
@@ -23,24 +34,14 @@ function getSnapshot() {
   return overlayActive;
 }
 
-function shouldShowLandingOnFreshLoad(): boolean {
-  if (typeof window === "undefined") return true;
-
-  const nav = performance.getEntriesByType("navigation")[0] as
-    | PerformanceNavigationTiming
-    | undefined;
-
-  if (nav?.type === "reload") {
-    sessionStorage.removeItem(LANDING_DISMISSED_KEY);
-    return true;
-  }
-
-  return sessionStorage.getItem(LANDING_DISMISSED_KEY) !== "1";
-}
-
 function markLandingDismissed() {
   if (typeof window === "undefined") return;
-  sessionStorage.setItem(LANDING_DISMISSED_KEY, "1");
+  sessionStorage.setItem(LANDING_DISMISSED_LOAD_KEY, getPageLoadId());
+}
+
+function isLandingDismissedForThisLoad(): boolean {
+  if (typeof window === "undefined") return false;
+  return sessionStorage.getItem(LANDING_DISMISSED_LOAD_KEY) === getPageLoadId();
 }
 
 function ensureInitialPathHandled(pathname: string) {
@@ -48,11 +49,6 @@ function ensureInitialPathHandled(pathname: string) {
   initialPathHandled = true;
 
   if (pathname !== "/") {
-    markLandingDismissed();
-    return;
-  }
-
-  if (!shouldShowLandingOnFreshLoad()) {
     markLandingDismissed();
   }
 }
@@ -65,7 +61,7 @@ function shouldShowLandingNow(pathname: string): boolean {
   ensureInitialPathHandled(pathname);
 
   if (pathname !== "/") return false;
-  return sessionStorage.getItem(LANDING_DISMISSED_KEY) !== "1";
+  return !isLandingDismissedForThisLoad();
 }
 
 function syncDocumentLandingState(active: boolean) {
