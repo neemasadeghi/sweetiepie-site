@@ -33,7 +33,11 @@ export function HomeLanding({
 
   return (
     <>
-      <LandingHero landing={landing} revealed={revealed} onReveal={reveal} />
+      <LandingHero
+        landing={landing}
+        revealed={revealed}
+        onReveal={reveal}
+      />
       <div
         className={`${styles.work} ${revealed ? styles.workVisible : ""}`}
         id="work"
