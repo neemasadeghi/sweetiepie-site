@@ -48,13 +48,11 @@
   backface-visibility: hidden;
   z-index: 1;
   opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.65s ease, visibility 0.65s ease;
+  transition: opacity 0.65s ease;
 }
 
 .videoVisible {
   opacity: 1;
-  visibility: visible;
 }
 
 .muxPlayer {
